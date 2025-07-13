@@ -7,7 +7,7 @@
   "framework": "vite",
   "functions": {
     "api/**/*.js": {
-      "runtime": "@vercel/node@20.19.7"
+      "runtime": "@vercel/node@18.x"
     }
   },
   "rewrites": [
