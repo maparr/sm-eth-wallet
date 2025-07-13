@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect } from 'react';
-import { InputValidator } from '@minimal-wallet/core';
 import { ValidationErrors, TransactionForm } from '../types';
 
 export const useValidation = (form: TransactionForm, balance: string) => {

@@ -1,4 +1,4 @@
-import { createDemoWallet } from '@minimal-wallet/core';
+import { createDemoWallet } from '../../lib/index.js';
 
 export default async function handler(req, res) {
   // Enable CORS

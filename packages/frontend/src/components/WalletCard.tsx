@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { 
   Copy, AlertCircle, Loader2, Wallet, Download, Upload, RefreshCw, 
-  Trash2, Plus, Info
+  Trash2, Info
 } from 'lucide-react';
 import { Button } from '@/components/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/card';

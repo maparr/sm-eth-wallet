@@ -29,7 +29,6 @@ export function SendTransactionForm({
   validationErrors,
   signedTx,
   broadcastResult,
-  isValid,
   onFormChange,
   onSignTransaction,
   onBroadcast
@@ -147,7 +146,7 @@ export function SendTransactionForm({
               type="checkbox"
               id="broadcast"
               checked={txForm.broadcast || false}
-              onChange={(e) => updateForm('broadcast', e.target.checked)}
+              onChange={(e) => updateForm('broadcast', e.target.checked as any)}
               className="rounded border-gray-300"
             />
             <label htmlFor="broadcast" className="text-sm font-medium">
