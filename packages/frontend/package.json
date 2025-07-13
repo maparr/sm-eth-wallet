@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "vite",
     "dev:full": "npm run build && node dev-server.js",
-    "build": "tsc && vite build",
+    "build": "npm run build:core && tsc && vite build",
+    "build:core": "cd ../core && npm run build",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "typecheck": "tsc --noEmit",
