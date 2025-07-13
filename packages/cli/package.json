@@ -1,0 +1,38 @@
+{
+  "name": "@minimal-wallet/cli",
+  "version": "1.0.0",
+  "description": "CLI for Minimal EVM Wallet",
+  "type": "commonjs",
+  "bin": {
+    "minimal-wallet": "./dist/inquirer-cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/inquirer-cli.js",
+    "test": "jest",
+    "test:integration": "jest --testMatch='**/*.integration.test.ts'",
+    "clean": "rm -rf dist coverage"
+  },
+  "dependencies": {
+    "@minimal-wallet/core": "*",
+    "@types/yargs": "^17.0.33",
+    "ink": "^3.2.0",
+    "ink-big-text": "^2.0.0",
+    "ink-gradient": "^3.0.0",
+    "ink-select-input": "^4.2.1",
+    "ink-text-input": "^4.0.0",
+    "inquirer": "^9.2.0",
+    "react": "^17.0.0",
+    "yargs": "^18.0.0"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^9.0.0",
+    "@types/jest": "^29.5.11",
+    "@types/node": "^20.11.5",
+    "@types/react": "^18.2.45",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.1",
+    "typescript": "^5.3.3"
+  }
+}
