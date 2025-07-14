@@ -40,12 +40,12 @@ export function TransactionConfirmation({ params, onConfirm, onCancel }: Transac
     <Box flexDirection="column" borderStyle={'single'} padding={2}>
       <Text color="cyan">📋 Transaction Summary:</Text>
       <Box flexDirection="column" marginY={1}>
-        <Text>📍 To: <Text color="yellow">{params.to}</Text></Text>
-        <Text>💰 Amount: <Text color="green">{params.value} ETH</Text></Text>
-        <Text>⛽ Gas Price: <Text color="blue">{params.gasPrice} Gwei</Text></Text>
-        <Text>🔥 Gas Limit: <Text color="blue">{params.gasLimit}</Text></Text>
-        <Text>🔢 Nonce: <Text color="gray">{params.nonce}</Text></Text>
-        <Text>🌐 Chain ID: <Text color="cyan">{params.chainId}</Text></Text>
+        <Text>📍 To: <Text color="yellow">{params.to || 'Not set'}</Text></Text>
+        <Text>💰 Amount: <Text color="green">{params.value || '0'} ETH</Text></Text>
+        <Text>⛽ Gas Price: <Text color="blue">{params.gasPrice || '0'} Gwei</Text></Text>
+        <Text>🔥 Gas Limit: <Text color="blue">{params.gasLimit || '0'}</Text></Text>
+        <Text>🔢 Nonce: <Text color="gray">{params.nonce || '0'}</Text></Text>
+        <Text>🌐 Chain ID: <Text color="cyan">{params.chainId || 'Not set'}</Text></Text>
         {params.data && params.data !== '0x' && (
           <Text>📄 Data: <Text color="gray">{params.data}</Text></Text>
         )}
