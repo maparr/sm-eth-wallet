@@ -318,24 +318,34 @@ export default function App({ argv, isDirectMode }: AppProps) {
             <Text color="cyan">🔄 Processing transaction...</Text>
             <Text>📍 To: {params.to || 'Not set'}</Text>
             <Text>💰 Value: {params.value || '0'} ETH</Text>
+            <Text>🔢 Nonce: {params.nonce || 'Not set'}</Text>
+            <Text>⛽ Gas Price: {params.gasPrice ? `${(parseInt(params.gasPrice) / 1e9).toFixed(2)} Gwei` : 'Default'}</Text>
+            <Text>🚗 Gas Limit: {params.gasLimit || 'Default'}</Text>
             <Text>🌐 Chain: {params.chainId === '1' ? 'Mainnet' : params.chainId === '11155111' ? 'Sepolia' : 'Unknown'}</Text>
             <Text>📡 Broadcast: {params.broadcast ? 'YES' : 'NO'}</Text>
           </Box>
         )}
         
         {step === APP_STATUS.RESULT && result && (
-          <Box borderStyle={'single'} padding={2}>
-            <Text color="green">✅ Transaction Created Successfully!</Text>
-            <Text>📋 Signed Hash: <Text color="cyan">{result.signed?.hash || 'Not available'}</Text></Text>
-            {result.txHash && (
+          <Box borderStyle={'double'} padding={2}>
+            <Text color="green">🎉 TRANSACTION SUCCESS! 🎉</Text>
+            <Text>========================================</Text>
+            {result.txHash ? (
               <>
-                <Text>🚀 Broadcast Hash: <Text color="green">{result.txHash}</Text></Text>
-                <Text>🔗 View on Explorer: <Text color="blue">{getEtherscanUrl(params.chainId, result.txHash)}</Text></Text>
+                <Text>🚀 BROADCASTED TO SEPOLIA! 🌟</Text>
+                <Text>📡 TX Hash: <Text color="green">{result.txHash}</Text></Text>
+                <Text>🔗 Sepolia Etherscan: <Text color="blue">{getEtherscanUrl(params.chainId, result.txHash)}</Text></Text>
+                <Text>💰 Value: <Text color="cyan">{params.value} ETH</Text></Text>
+                <Text>📍 To: <Text color="cyan">{params.to}</Text></Text>
+                <Text>🌐 Network: <Text color="yellow">Sepolia Testnet</Text></Text>
+              </>
+            ) : (
+              <>
+                <Text>✅ Transaction Signed (Not Broadcasted)</Text>
+                <Text>📋 Signed Hash: <Text color="cyan">{result.signed?.hash || 'Not available'}</Text></Text>
               </>
             )}
-            {params.broadcast && !result.txHash && (
-              <Text color="yellow">⚠️ Broadcast was requested but no tx hash returned</Text>
-            )}
+            <Text>========================================</Text>
           </Box>
         )}
         

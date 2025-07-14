@@ -7,6 +7,7 @@ export const useWallet = () => {
   const [walletState, setWalletState] = useState<WalletState>({
     wallet: null,
     account: null,
+    accountIndex: 0,
     isLoading: false,
     error: '',
     success: ''
@@ -53,6 +54,7 @@ export const useWallet = () => {
         ...prev,
         wallet, // Keep wallet object for transaction signing
         account: data.account,
+        accountIndex: accountIndex,
         isLoading: false,
         success: `Demo wallet loaded successfully! 🎉\nAccount ${accountIndex}: ${data.account?.address}`
       }));
@@ -86,6 +88,7 @@ export const useWallet = () => {
         ...prev,
         wallet,
         account,
+        accountIndex: accountIndex,
         isLoading: false,
         success: `Wallet imported successfully! 🎉\nAccount ${accountIndex}: ${account?.address}`
       }));
@@ -105,6 +108,7 @@ export const useWallet = () => {
     setWalletState({
       wallet: null,
       account: null,
+      accountIndex: 0,
       isLoading: false,
       error: '',
       success: 'Wallet cleared successfully 🧹'

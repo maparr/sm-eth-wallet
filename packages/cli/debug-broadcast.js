@@ -16,7 +16,7 @@ async function testBroadcast() {
     const params = {
       to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
       value: '0.00001',  // Even smaller amount
-      nonce: '3',        // Next nonce after failed transaction
+      nonce: '4',        // Next nonce after failed transaction
       gasPrice: '1000000000',  // Lower gas price (1 Gwei)
       gasLimit: '21000',
       chainId: '11155111',

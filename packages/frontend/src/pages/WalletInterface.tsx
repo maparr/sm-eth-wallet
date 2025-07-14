@@ -59,7 +59,7 @@ export function WalletInterface() {
   // Form validation
   const { errors: validationErrors, isValid } = useValidation(txForm);
 
-  const { wallet, account, error, success } = walletState;
+  const { wallet, account, accountIndex, error, success } = walletState;
 
 
   // Wallet management handlers
@@ -142,7 +142,7 @@ export function WalletInterface() {
           chainId: network.chainId.toString(),
           broadcast: false,
           mnemonic: mnemonic,
-          accountIndex: 0
+          accountIndex: accountIndex
         })
       });
       
