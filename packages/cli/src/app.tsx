@@ -260,9 +260,9 @@ export default function App({ argv, isDirectMode }: AppProps) {
         {step === APP_STATUS.PROCESSING && (
           <Box borderStyle={'single'} padding={2}>
             <Text color="cyan">🔄 Processing transaction...</Text>
-            <Text>📍 To: {params.to}</Text>
-            <Text>💰 Value: {params.value} ETH</Text>
-            <Text>🌐 Chain: {params.chainId === '1' ? 'Mainnet' : 'Sepolia'}</Text>
+            <Text>📍 To: {params.to || 'Not set'}</Text>
+            <Text>💰 Value: {params.value || '0'} ETH</Text>
+            <Text>🌐 Chain: {params.chainId === '1' ? 'Mainnet' : params.chainId === '11155111' ? 'Sepolia' : 'Unknown'}</Text>
             <Text>📡 Broadcast: {params.broadcast ? 'YES' : 'NO'}</Text>
           </Box>
         )}
@@ -270,7 +270,7 @@ export default function App({ argv, isDirectMode }: AppProps) {
         {step === APP_STATUS.RESULT && result && (
           <Box borderStyle={'single'} padding={2}>
             <Text color="green">✅ Transaction Created Successfully!</Text>
-            <Text>📋 Signed Hash: <Text color="cyan">{result.signed?.hash}</Text></Text>
+            <Text>📋 Signed Hash: <Text color="cyan">{result.signed?.hash || 'Not available'}</Text></Text>
             {result.txHash && (
               <>
                 <Text>🚀 Broadcast Hash: <Text color="green">{result.txHash}</Text></Text>

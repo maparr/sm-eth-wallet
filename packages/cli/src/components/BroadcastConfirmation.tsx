@@ -39,7 +39,7 @@ export function BroadcastConfirmation({ signedTransaction, onBroadcast, onSkip, 
     <Box flexDirection="column" borderStyle={'single'} padding={2}>
       <Text color="green">✅ Transaction Signed Successfully!</Text>
       <Box flexDirection="column" marginY={1}>
-        <Text>📋 Signed Hash: <Text color="cyan">{signedTransaction?.signed?.hash}</Text></Text>
+        <Text>📋 Signed Hash: <Text color="cyan">{signedTransaction?.signed?.hash || 'Not available'}</Text></Text>
         <Text color="yellow">Choose what to do next:</Text>
       </Box>
       <SelectInput

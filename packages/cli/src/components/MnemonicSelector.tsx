@@ -31,8 +31,12 @@ export function MnemonicSelector({ onSelect }: MnemonicSelectorProps) {
   };
 
   const handleCustomSubmit = () => {
-    if (customMnemonic.trim()) {
-      onSelect(customMnemonic.trim());
+    const trimmed = customMnemonic.trim();
+    if (trimmed && trimmed.length > 0) {
+      onSelect(trimmed);
+    } else {
+      // Don't submit empty mnemonic, just ignore
+      console.log('Empty mnemonic not allowed');
     }
   };
 

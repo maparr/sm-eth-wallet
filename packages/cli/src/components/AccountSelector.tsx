@@ -39,9 +39,19 @@ export function AccountSelector({ onSelect }: AccountSelectorProps) {
   };
 
   const handleCustomSubmit = () => {
-    const accountIndex = parseInt(customAccount);
+    const trimmed = customAccount.trim();
+    if (trimmed === '') {
+      // Default to 0 if empty
+      onSelect(0);
+      return;
+    }
+    
+    const accountIndex = parseInt(trimmed);
     if (!isNaN(accountIndex) && accountIndex >= 0) {
       onSelect(accountIndex);
+    } else {
+      // Invalid input, ignore submission
+      console.log('Invalid account index');
     }
   };
 
