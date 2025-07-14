@@ -31,7 +31,7 @@ export class TransactionBroadcaster {
     }
   ];
   
-  private timeout = 30000; // 30 seconds for transactions
+  private timeout = 10000; // 10 seconds for transactions
   
   async broadcastTransaction(signedTx: SignedTransaction | string): Promise<string> {
     const rawTx = typeof signedTx === 'string' ? signedTx : signedTx.rawTransaction;
@@ -113,13 +113,28 @@ export class TransactionBroadcaster {
       });
       
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
       }
       
       const data = await response.json() as RPCResponse<string>;
       
       if (data.error) {
-        throw data.error;
+        const errorMsg = data.error.message || 'Unknown RPC error';
+        const errorCode = data.error.code || 'UNKNOWN';
+        
+        // Clear error context when retrying
+        if (errorMsg.includes('insufficient funds') || errorMsg.includes('nonce')) {
+          throw new WalletError(
+            `Transaction failed: ${errorMsg}`,
+            'TRANSACTION_FAILED'
+          );
+        }
+        
+        throw new WalletError(
+          `RPC Error [${errorCode}]: ${errorMsg}`,
+          'RPC_ERROR'
+        );
       }
       
       if (!data.result) {
@@ -131,7 +146,7 @@ export class TransactionBroadcaster {
     } catch (error: unknown) {
       if (error instanceof Error && error.name === 'AbortError') {
         throw new WalletError(
-          'Request timeout after 30 seconds',
+          'Request timeout after 10 seconds',
           'NETWORK_TIMEOUT'
         );
       }

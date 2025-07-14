@@ -21,6 +21,18 @@ const NETWORKS = {
   11155111: { name: 'Sepolia Testnet', emoji: '🧪' }
 };
 
+// Helper function to get Etherscan URL based on chain ID
+const getEtherscanUrl = (chainId: string | undefined, txHash: string): string => {
+  if (chainId === '1') {
+    return `https://etherscan.io/tx/${txHash}`;
+  } else if (chainId === '11155111') {
+    return `https://sepolia.etherscan.io/tx/${txHash}`;
+  } else {
+    // Default to Sepolia for unknown chains
+    return `https://sepolia.etherscan.io/tx/${txHash}`;
+  }
+};
+
 // App status constants
 const APP_STATUS = {
   WELCOME: 'welcome',
@@ -138,9 +150,14 @@ export default function App({ argv, isDirectMode }: AppProps) {
     const inputs = ['to', 'value', 'nonce', 'gasPrice', 'gasLimit', 'data'];
     const currentField = inputs[inputStep];
     
+    // Don't allow empty values for required fields
+    if (!currentInput.trim() && currentField !== 'data') {
+      return; // Don't submit empty values
+    }
+    
     setParams(prev => ({
       ...prev,
-      [currentField]: currentInput
+      [currentField]: currentInput.trim() || (currentField === 'data' ? '0x' : '')
     }));
     setCurrentInput('');
     
@@ -158,13 +175,26 @@ export default function App({ argv, isDirectMode }: AppProps) {
     try {
       const finalParams = { ...params, data: params.data || '0x' } as TransactionParams;
       
+      // Map to the correct wallet API parameters
+      const walletParams = {
+        to: finalParams.to,
+        value: finalParams.value,
+        nonce: finalParams.nonce,
+        gasPrice: finalParams.gasPrice,
+        gasLimit: finalParams.gasLimit,
+        chainId: finalParams.chainId,
+        data: finalParams.data,
+        accountIndex: mode === 'direct' ? (argv?.account || 0) : selectedAccount,
+        broadcast: false
+      };
+      
       // Add timeout to prevent hanging
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(() => reject(new Error('Transaction signing timeout (30s)')), 30000);
       });
       
       const txResult = await Promise.race([
-        wallet.createSignedTransaction({ ...finalParams, broadcast: false }),
+        wallet.createSignedTransaction(walletParams),
         timeoutPromise
       ]);
       
@@ -184,7 +214,20 @@ export default function App({ argv, isDirectMode }: AppProps) {
     try {
       const finalParams = { ...params, data: params.data || '0x' } as TransactionParams;
       
-      const txResult = await wallet.createSignedTransaction({ ...finalParams, broadcast: true });
+      // Map to the correct wallet API parameters
+      const walletParams = {
+        to: finalParams.to,
+        value: finalParams.value,
+        nonce: finalParams.nonce,
+        gasPrice: finalParams.gasPrice,
+        gasLimit: finalParams.gasLimit,
+        chainId: finalParams.chainId,
+        data: finalParams.data,
+        accountIndex: mode === 'direct' ? (argv?.account || 0) : selectedAccount,
+        broadcast: true
+      };
+      
+      const txResult = await wallet.createSignedTransaction(walletParams);
       
       setResult(txResult);
       setStep(APP_STATUS.RESULT);
@@ -225,13 +268,26 @@ export default function App({ argv, isDirectMode }: AppProps) {
     try {
       const finalParams = txParams || { ...params, data: params.data || '0x' } as TransactionParams;
       
+      // Map to the correct wallet API parameters
+      const walletParams = {
+        to: finalParams.to,
+        value: finalParams.value,
+        nonce: finalParams.nonce,
+        gasPrice: finalParams.gasPrice,
+        gasLimit: finalParams.gasLimit,
+        chainId: finalParams.chainId,
+        data: finalParams.data,
+        accountIndex: mode === 'direct' ? (argv?.account || 0) : selectedAccount,
+        broadcast: finalParams.broadcast || false
+      };
+      
       // Add timeout to prevent hanging
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(() => reject(new Error('Transaction processing timeout (30s)')), 30000);
       });
       
       const txResult = await Promise.race([
-        wallet.createSignedTransaction(finalParams),
+        wallet.createSignedTransaction(walletParams),
         timeoutPromise
       ]);
       
@@ -239,7 +295,7 @@ export default function App({ argv, isDirectMode }: AppProps) {
       setStep(APP_STATUS.RESULT);
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      setError(`Broadcasting failed: ${errorMessage}`);
+      setError(`Transaction processing failed: ${errorMessage}`);
       setStep(APP_STATUS.ERROR);
     }
   };
@@ -250,9 +306,9 @@ export default function App({ argv, isDirectMode }: AppProps) {
       <MainLayout>
         <WalletBanner />
         
-{accountAddress ? (
+        {accountAddress ? (
           <Box borderStyle={'single'} padding={1} marginY={1}>
-            <Text>🔑 Account {argv.account || 0}: <Text color="cyan">{accountAddress}</Text></Text>
+            <Text>🔑 Account {argv.account || 0}: <Text color="cyan">{accountAddress || 'Loading...'}</Text></Text>
             <Text>🔐 Mnemonic: <Text color="yellow">{argv.mnemonic ? 'Custom' : 'Default'}</Text></Text>
           </Box>
         ) : null}
@@ -274,7 +330,7 @@ export default function App({ argv, isDirectMode }: AppProps) {
             {result.txHash && (
               <>
                 <Text>🚀 Broadcast Hash: <Text color="green">{result.txHash}</Text></Text>
-                <Text>🔗 View on Explorer: <Text color="blue">https://sepolia.etherscan.io/tx/{result.txHash}</Text></Text>
+                <Text>🔗 View on Explorer: <Text color="blue">{getEtherscanUrl(params.chainId, result.txHash)}</Text></Text>
               </>
             )}
             {params.broadcast && !result.txHash && (
@@ -297,9 +353,9 @@ export default function App({ argv, isDirectMode }: AppProps) {
     <MainLayout>
       <WalletBanner />
       
-{accountAddress ? (
+      {accountAddress ? (
         <Box borderStyle={'single'} padding={1} marginY={1}>
-          <Text>🔑 Account {selectedAccount}: <Text color="cyan">{accountAddress}</Text></Text>
+          <Text>🔑 Account {selectedAccount}: <Text color="cyan">{accountAddress || 'Loading...'}</Text></Text>
           <Text>🔐 Mnemonic: <Text color="yellow">{selectedMnemonic === 'test test test test test test test test test test test junk' ? 'Test' : 'Custom'}</Text></Text>
         </Box>
       ) : null}
@@ -350,7 +406,7 @@ export default function App({ argv, isDirectMode }: AppProps) {
       
       {step === APP_STATUS.RESULT && result && (
         <>
-          <TransactionResult result={result} />
+          <TransactionResult result={result} chainId={params.chainId} />
           <ResultActions onReset={handleReset} onExit={handleExit} />
         </>
       )}

@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { TransactionHistory } from '@types';
-import { saveTransactionHistory, loadTransactionHistory } from '@utils/storage';
+import { saveTransactionHistory, loadTransactionHistory, TRANSACTION_STATUSES } from '@utils';
 
 export const useTransactionHistory = () => {
   const [transactions, setTransactions] = useState<TransactionHistory[]>([]);
@@ -39,7 +39,7 @@ export const useTransactionHistory = () => {
   }, [transactions]);
 
   const getPendingTransactions = useCallback(() => {
-    return transactions.filter(tx => tx.status === 'pending');
+    return transactions.filter(tx => tx.status === TRANSACTION_STATUSES.PENDING);
   }, [transactions]);
 
   return {

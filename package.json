@@ -17,12 +17,12 @@
     "typecheck": "turbo typecheck",
     "clean": "turbo clean && rm -rf node_modules",
     "core": "npm run dev --workspace=@minimal-wallet/core",
-    "cli": "npm run dev --workspace=@minimal-wallet/cli",
     "frontend": "npm run dev --workspace=@minimal-wallet/frontend",
-    "wallet": "npm run build --workspace=@minimal-wallet/cli && node packages/cli/dist/inquirer-cli.js",
-    "cli:line": "npm run build --workspace=@minimal-wallet/cli && node packages/cli/dist/inquirer-cli.js",
-    "cli:run": "npm run build --workspace=@minimal-wallet/cli && node packages/cli/dist/inquirer-cli.js",
-    "cli:quick": "node packages/cli/dist/inquirer-cli.js"
+    "wallet:cli": "cd packages/cli && npm run build && node dist/cli.js",
+    "test:core": "cd packages/core && npm test",
+    "test:cli": "cd packages/cli && npm test",
+    "test:integration": "cd packages/cli && npm run test:integration",
+    "test:all": "npm run test:core && npm run test:cli"
   },
   "devDependencies": {
     "turbo": "^1.11.2",

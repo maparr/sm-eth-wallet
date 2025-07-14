@@ -129,5 +129,25 @@ if (isDirectMode) {
   console.log(`📡 Broadcast: ${argv.broadcast ? 'YES' : 'NO'}`);
 }
 
+// Check if raw mode is supported for interactive mode
+if (!isDirectMode && !process.stdin.isTTY) {
+  console.error('🚨 Interactive mode requires a TTY environment');
+  console.error('💡 Try running in direct mode with all required parameters:');
+  console.error('   minimal-wallet --to 0x... --value 0.01 --nonce 0');
+  console.error('   Use --help for more information');
+  process.exit(1);
+}
+
 // Render the Ink app (will handle direct mode internally)
-render(<App argv={argv} isDirectMode={Boolean(isDirectMode)} />);
+try {
+  render(<App argv={argv} isDirectMode={Boolean(isDirectMode)} />);
+} catch (error) {
+  if (error instanceof Error && error.message.includes('Raw mode is not supported')) {
+    console.error('🚨 Interactive mode not supported in this environment');
+    console.error('💡 Try running in direct mode with all required parameters:');
+    console.error('   minimal-wallet --to 0x... --value 0.01 --nonce 0');
+    console.error('   Use --help for more information');
+    process.exit(1);
+  }
+  throw error;
+}

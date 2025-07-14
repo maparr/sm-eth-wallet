@@ -3,7 +3,7 @@ import {
 } from 'lucide-react';
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Alert, AlertDescription } from '@components/UI';
 import { NETWORKS } from 'minimal-evm-wallet-core';
-import { formatAddress, formatDate } from '@utils';
+import { formatAddress, formatDate, TRANSACTION_STATUSES } from '@utils';
 import { TransactionHistory as TransactionHistoryType } from '@types';
 
 interface TransactionHistoryProps {
@@ -65,11 +65,11 @@ interface TransactionItemProps {
 function TransactionItem({ transaction, network, onCopyToClipboard }: TransactionItemProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'confirmed':
+      case TRANSACTION_STATUSES.CONFIRMED:
         return 'bg-green-500';
-      case 'pending':
+      case TRANSACTION_STATUSES.PENDING:
         return 'bg-yellow-500 animate-pulse';
-      case 'failed':
+      case TRANSACTION_STATUSES.FAILED:
         return 'bg-red-500';
       default:
         return 'bg-gray-500';

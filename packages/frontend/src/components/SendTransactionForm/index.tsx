@@ -13,6 +13,7 @@ interface SendTransactionFormProps {
   validationErrors: ValidationErrors;
   signedTx: SignedTransaction | null;
   broadcastResult: string;
+  broadcastError: string;
   isValid: boolean;
   onFormChange: (form: TransactionForm) => void;
   onSignTransaction: (e: React.FormEvent) => Promise<void>;
@@ -26,6 +27,7 @@ export function SendTransactionForm({
   validationErrors,
   signedTx,
   broadcastResult,
+  broadcastError,
   onFormChange,
   onSignTransaction,
   onBroadcast
@@ -219,6 +221,25 @@ export function SendTransactionForm({
                   View on {network.name} Explorer
                   <ExternalLink className="ml-1 h-3 w-3" />
                 </a>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Broadcast Error */}
+        {broadcastError && (
+          <Alert variant="destructive" className="mt-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Broadcast Failed</AlertTitle>
+            <AlertDescription>
+              <div className="space-y-3">
+                <p className="font-medium">Network Error Response:</p>
+                <pre className="text-xs whitespace-pre-wrap p-3 bg-red-950/20 border border-red-200 rounded-md font-mono overflow-x-auto">
+                  {broadcastError}
+                </pre>
+                <p className="text-sm text-muted-foreground">
+                  Common causes: insufficient funds, incorrect nonce, gas price too low, or network congestion.
+                </p>
               </div>
             </AlertDescription>
           </Alert>

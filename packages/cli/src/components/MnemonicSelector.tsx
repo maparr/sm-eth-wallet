@@ -55,7 +55,7 @@ export function MnemonicSelector({ onSelect }: MnemonicSelectorProps) {
         <Box flexDirection="column" marginTop={1}>
           <Text color="yellow">Enter your 12 or 24 word mnemonic phrase:</Text>
           <TextInput
-            value={customMnemonic}
+            value={customMnemonic || ''}
             onChange={setCustomMnemonic}
             onSubmit={handleCustomSubmit}
             placeholder="word1 word2 word3 ..."

@@ -1,5 +1,6 @@
 import { Send, History, Settings } from 'lucide-react';
-import { TabType } from '@/types';
+import { TabType } from '@types';
+import { TAB_TYPES } from '@utils';
 
 interface TabNavigationProps {
   activeTab: TabType;
@@ -16,20 +17,20 @@ export function TabNavigation({
 }: TabNavigationProps) {
   const tabs = [
     {
-      id: 'send' as TabType,
+      id: TAB_TYPES.SEND,
       label: 'Send',
       icon: Send,
       disabled: false
     },
     {
-      id: 'history' as TabType,
+      id: TAB_TYPES.HISTORY,
       label: 'History',
       icon: History,
       disabled: !isWalletConnected,
       badge: transactionCount > 0 ? transactionCount : undefined
     },
     {
-      id: 'settings' as TabType,
+      id: TAB_TYPES.SETTINGS,
       label: 'Settings',
       icon: Settings,
       disabled: !isWalletConnected

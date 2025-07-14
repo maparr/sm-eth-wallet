@@ -4,14 +4,16 @@
   "description": "CLI for Minimal EVM Wallet",
   "type": "commonjs",
   "bin": {
-    "minimal-wallet": "./dist/inquirer-cli.js"
+    "minimal-wallet": "./dist/cli.js"
   },
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "start": "node dist/inquirer-cli.js",
+    "start": "node dist/cli.js",
+    "start:ink": "node dist/cli.js",
+    "wallet": "node dist/cli.js",
     "test": "jest",
-    "test:integration": "jest --testMatch='**/*.integration.test.ts'",
+    "test:integration": "jest --testMatch='**/integration.test.ts'",
     "clean": "rm -rf dist coverage"
   },
   "dependencies": {

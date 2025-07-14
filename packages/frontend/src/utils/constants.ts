@@ -33,3 +33,14 @@ export const VALIDATION_RULES = {
   MIN_AMOUNT: 0,
   MNEMONIC_LENGTHS: [12, 24]
 };
+
+export const TAB_TYPES = {
+  SEND: 'send',
+  HISTORY: 'history',
+  SETTINGS: 'settings'
+} as const;
+
+export const NETWORKS = {
+  SEPOLIA: 'sepolia',
+  MAINNET: 'mainnet'
+} as const;

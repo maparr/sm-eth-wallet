@@ -29,7 +29,7 @@ export function TransactionInput({ step, value, onChange, onSubmit }: Transactio
       <Box marginTop={1}>
         <Text color="green">▶ </Text>
         <TextInput
-          value={value}
+          value={value || ''}
           onChange={onChange}
           onSubmit={onSubmit}
           placeholder={currentInput.placeholder}

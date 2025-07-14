@@ -12,8 +12,8 @@ interface WalletCardProps {
   walletState: WalletState;
   selectedNetwork: string;
   onNetworkChange: (network: string) => void;
-  onGenerateWallet: () => Promise<void>;
-  onImportWallet: (mnemonic: string) => Promise<void>;
+  onGenerateWallet: (accountIndex: number) => Promise<void>;
+  onImportWallet: (mnemonic: string, accountIndex: number) => Promise<void>;
   onClearWallet: () => void;
   onExportWallet: () => void;
   onCopyToClipboard: (text: string, label?: string) => void;
@@ -29,15 +29,42 @@ export function WalletCard({
   onExportWallet,
   onCopyToClipboard
 }: WalletCardProps) {
-  const [showImportMnemonic, setShowImportMnemonic] = useState(false);
+  const [showAccountIndex, setShowAccountIndex] = useState(false);
+  const [walletType, setWalletType] = useState<'test' | 'import' | null>(null);
   const [importMnemonic, setImportMnemonic] = useState('');
+  const [accountIndex, setAccountIndex] = useState<number>(0);
 
   const { account, isLoading } = walletState;
 
-  const handleImport = async () => {
-    await onImportWallet(importMnemonic);
+  const handleStartTestWallet = () => {
+    setWalletType('test');
+    setShowAccountIndex(true);
+  };
+
+  const handleStartImportWallet = () => {
+    setWalletType('import');
+    setShowAccountIndex(true);
+  };
+
+  const handleConfirmWallet = async () => {
+    if (walletType === 'test') {
+      await onGenerateWallet(accountIndex);
+    } else if (walletType === 'import') {
+      await onImportWallet(importMnemonic, accountIndex);
+    }
+    
+    // Reset state
+    setShowAccountIndex(false);
+    setWalletType(null);
     setImportMnemonic('');
-    setShowImportMnemonic(false);
+    setAccountIndex(0);
+  };
+
+  const handleCancel = () => {
+    setShowAccountIndex(false);
+    setWalletType(null);
+    setImportMnemonic('');
+    setAccountIndex(0);
   };
 
   return (
@@ -64,39 +91,66 @@ export function WalletCard({
               </AlertDescription>
             </Alert>
             
-            <Alert className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
-              <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-              <AlertDescription className="text-blue-700 dark:text-blue-300">
-                <strong>Test Mode:</strong> Load test wallet uses default mnemonic: 
-                <code className="block text-xs mt-1 p-1 bg-background border rounded font-mono">
-                  test test test test test test test test test test test junk
-                </code>
-              </AlertDescription>
-            </Alert>
-            
-            {/* Import Wallet Section */}
-            {showImportMnemonic && (
-              <div className="space-y-3 p-4 border rounded-lg bg-muted/50">
-                <label className="text-sm font-medium">Recovery Phrase</label>
-                <textarea
-                  className="w-full p-3 border rounded-md resize-none"
-                  rows={3}
-                  placeholder="Enter your 12 or 24 word recovery phrase..."
-                  value={importMnemonic}
-                  onChange={(e) => setImportMnemonic(e.target.value)}
-                />
+            {/* Step 2: Account Index Selection */}
+            {showAccountIndex && (
+              <div className="space-y-4 p-4 border rounded-lg bg-muted/50">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-medium">
+                    Step 2: Choose Account Index
+                    {walletType === 'test' && ' (Test Wallet)'}
+                    {walletType === 'import' && ' (Import Wallet)'}
+                  </h3>
+                </div>
+                
+                {walletType === 'test' && (
+                  <Alert className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
+                    <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    <AlertDescription className="text-blue-700 dark:text-blue-300">
+                      <strong>Test Mnemonic:</strong> test test test test test test test test test test test junk
+                    </AlertDescription>
+                  </Alert>
+                )}
+                
+                {walletType === 'import' && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Recovery Phrase</label>
+                    <textarea
+                      className="w-full p-3 border rounded-md resize-none bg-background text-foreground"
+                      rows={3}
+                      placeholder="Enter your 12 or 24 word recovery phrase..."
+                      value={importMnemonic}
+                      onChange={(e) => setImportMnemonic(e.target.value)}
+                    />
+                  </div>
+                )}
+                
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Account Index</label>
+                  <input
+                    type="number"
+                    className="w-full p-2 border rounded-md bg-background text-foreground"
+                    placeholder="Enter any account index number"
+                    value={accountIndex}
+                    min={0}
+                    onChange={(e) => setAccountIndex(parseInt(e.target.value) || 0)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Enter any number from 0 to millions/billions - different indices generate different wallet addresses
+                  </p>
+                </div>
+                
                 <div className="flex gap-2">
                   <Button 
-                    onClick={handleImport} 
-                    disabled={!importMnemonic.trim() || isLoading}
+                    onClick={handleConfirmWallet} 
+                    disabled={(walletType === 'import' && !importMnemonic.trim()) || isLoading}
                     className="flex-1"
                   >
-                    {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Upload className="h-4 w-4 mr-2" />}
-                    Import
+                    {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Wallet className="h-4 w-4 mr-2" />}
+                    Load Wallet
                   </Button>
                   <Button 
                     variant="outline" 
-                    onClick={() => setShowImportMnemonic(false)}
+                    onClick={handleCancel}
                   >
                     Cancel
                   </Button>
@@ -147,25 +201,29 @@ export function WalletCard({
       <CardFooter className="flex flex-col gap-2">
         {!account ? (
           <>
-            <Button 
-              onClick={onGenerateWallet} 
-              className="w-full relative"
-              disabled={isLoading}
-              title="Loads test wallet with predefined mnemonic for development"
-            >
-              {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Wallet className="h-4 w-4 mr-2" />}
-              Load Test Wallet
-              <Info className="h-3 w-3 ml-auto opacity-60" />
-            </Button>
-            <Button 
-              onClick={() => setShowImportMnemonic(true)} 
-              variant="secondary" 
-              className="w-full"
-              disabled={showImportMnemonic}
-            >
-              <Upload className="h-4 w-4 mr-2" />
-              Import Wallet
-            </Button>
+            {!showAccountIndex && (
+              <>
+                <Button 
+                  onClick={handleStartTestWallet} 
+                  className="w-full relative"
+                  disabled={isLoading}
+                  title="Load test wallet with predefined mnemonic"
+                >
+                  <Wallet className="h-4 w-4 mr-2" />
+                  Load Test Wallet
+                  <Info className="h-3 w-3 ml-auto opacity-60" />
+                </Button>
+                <Button 
+                  onClick={handleStartImportWallet} 
+                  variant="secondary" 
+                  className="w-full"
+                  disabled={isLoading}
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Import Wallet
+                </Button>
+              </>
+            )}
           </>
         ) : (
           <div className="flex gap-2 w-full">

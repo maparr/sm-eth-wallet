@@ -5,7 +5,7 @@ import {
   type SignedTransaction
 } from 'minimal-evm-wallet-core';
 import { useWallet, useTransactionHistory, useValidation } from '@hooks';
-import { DEFAULT_GAS_LIMIT, DEFAULT_GAS_PRICE } from '@utils';
+import { DEFAULT_GAS_LIMIT, DEFAULT_GAS_PRICE, TAB_TYPES, NETWORKS as NETWORK_KEYS, TRANSACTION_STATUSES } from '@utils';
 import { TransactionForm, TabType, TransactionHistory } from '@types';
 
 // Component imports
@@ -28,13 +28,14 @@ export function WalletInterface() {
   
   // UI state
   const [mnemonic, setMnemonic] = useState<string>('');
-  const [selectedNetwork, setSelectedNetwork] = useState('sepolia');
-  const [activeTab, setActiveTab] = useState<TabType>('send');
-  const [accountIndex] = useState<number>(0);
+  const [selectedNetwork, setSelectedNetwork] = useState<string>(NETWORK_KEYS.SEPOLIA);
+  const [activeTab, setActiveTab] = useState<TabType>(TAB_TYPES.SEND);
+  // Account index is managed by WalletCard component
   
   // Transaction state
   const [signedTx, setSignedTx] = useState<SignedTransaction | null>(null);
   const [broadcastResult, setBroadcastResult] = useState<string>('');
+  const [broadcastError, setBroadcastError] = useState<string>('');
   
   // Form state
   const [txForm, setTxForm] = useState<TransactionForm>({
@@ -44,6 +45,16 @@ export function WalletInterface() {
     gasLimit: DEFAULT_GAS_LIMIT,
     nonce: '0'
   });
+
+  // Clear signed transaction when form changes
+  const updateTxForm = (newForm: TransactionForm) => {
+    if (signedTx) {
+      setSignedTx(null);
+      setBroadcastResult('');
+      setBroadcastError('');
+    }
+    setTxForm(newForm);
+  };
   
   // Form validation
   const { errors: validationErrors, isValid } = useValidation(txForm);
@@ -52,19 +63,19 @@ export function WalletInterface() {
 
 
   // Wallet management handlers
-  const handleGenerateWallet = useCallback(async () => {
-    console.log('Generate wallet button clicked!');
+  const handleGenerateWallet = useCallback(async (index: number) => {
+    console.log('Generate wallet button clicked!', { accountIndex: index });
     try {
-      const result = await generateWallet(accountIndex);
+      const result = await generateWallet(index);
       setMnemonic(result.mnemonic);
     } catch (err) {
       console.error('Generate wallet error in container:', err);
     }
-  }, [generateWallet, accountIndex]);
+  }, [generateWallet]);
 
-  const handleImportWallet = useCallback(async (importMnemonic: string) => {
+  const handleImportWallet = useCallback(async (importMnemonic: string, accountIndex: number) => {
     try {
-      await importWallet(importMnemonic);
+      await importWallet(importMnemonic, accountIndex);
       setMnemonic(importMnemonic.trim());
     } catch (err) {
       // Error handled by hook
@@ -76,7 +87,8 @@ export function WalletInterface() {
     setMnemonic('');
     setSignedTx(null);
     setBroadcastResult('');
-    setActiveTab('send');
+    setBroadcastError('');
+    setActiveTab(TAB_TYPES.SEND);
   }, [clearWallet]);
 
   const handleExportWallet = useCallback(() => {
@@ -159,7 +171,7 @@ export function WalletInterface() {
         hash: txHash,
         to: txForm.to,
         value: txForm.value,
-        status: 'pending',
+        status: TRANSACTION_STATUSES.PENDING,
         timestamp: Date.now(),
         gasPrice: txForm.gasPrice,
         network: selectedNetwork
@@ -179,6 +191,22 @@ export function WalletInterface() {
       // Transaction broadcast completed
     } catch (err) {
       console.error('Transaction broadcast failed:', err);
+      let errorMessage = 'Transaction broadcast failed';
+      
+      if (err instanceof Error) {
+        try {
+          // Try to parse JSON error response and show the complete error
+          const errorData = JSON.parse(err.message);
+          errorMessage = JSON.stringify(errorData, null, 2);
+        } catch {
+          // If not JSON, use the original error message
+          errorMessage = err.message;
+        }
+      }
+      
+      setBroadcastError(errorMessage);
+      // Clear signed transaction when broadcast fails
+      setSignedTx(null);
     }
   }, [signedTx, wallet, txForm, selectedNetwork, addTransaction]);
 
@@ -188,7 +216,7 @@ export function WalletInterface() {
       <WelcomeHeader 
         selectedNetwork={selectedNetwork}
         isWalletConnected={!!account}
-        onNetworkChange={setSelectedNetwork}
+        onNetworkChange={(network: string) => setSelectedNetwork(network)}
       />
 
       {/* Global Messages */}
@@ -213,7 +241,7 @@ export function WalletInterface() {
         <WalletCard
           walletState={walletState}
           selectedNetwork={selectedNetwork}
-          onNetworkChange={setSelectedNetwork}
+          onNetworkChange={(network: string) => setSelectedNetwork(network)}
           onGenerateWallet={handleGenerateWallet}
           onImportWallet={handleImportWallet}
           onClearWallet={handleClearWallet}
@@ -232,7 +260,7 @@ export function WalletInterface() {
           />
 
           {/* Tab Content */}
-          {activeTab === 'send' && (
+          {activeTab === TAB_TYPES.SEND && (
             <SendTransactionForm
               walletState={walletState}
               selectedNetwork={selectedNetwork}
@@ -240,14 +268,15 @@ export function WalletInterface() {
               validationErrors={validationErrors}
               signedTx={signedTx}
               broadcastResult={broadcastResult}
+              broadcastError={broadcastError}
               isValid={isValid}
-              onFormChange={setTxForm}
+              onFormChange={updateTxForm}
               onSignTransaction={handleSignTransaction}
               onBroadcast={handleBroadcast}
             />
           )}
 
-          {activeTab === 'history' && (
+          {activeTab === TAB_TYPES.HISTORY && (
             <TransactionHistoryComponent
               transactions={transactions}
               selectedNetwork={selectedNetwork}
@@ -255,10 +284,10 @@ export function WalletInterface() {
             />
           )}
 
-          {activeTab === 'settings' && (
+          {activeTab === TAB_TYPES.SETTINGS && (
             <WalletSettings
               selectedNetwork={selectedNetwork}
-              onNetworkChange={setSelectedNetwork}
+              onNetworkChange={(network: string) => setSelectedNetwork(network)}
             />
           )}
         </div>

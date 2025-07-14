@@ -65,7 +65,7 @@ export const useWallet = () => {
     }
   }, []);
 
-  const importWallet = useCallback(async (mnemonic: string) => {
+  const importWallet = useCallback(async (mnemonic: string, accountIndex: number = 0) => {
     try {
       setWalletState(prev => ({ ...prev, isLoading: true, error: '', success: '' }));
       
@@ -80,14 +80,14 @@ export const useWallet = () => {
       
       const wallet = new MinimalEVMWallet();
       wallet.createFromMnemonic(mnemonic.trim());
-      const account = wallet.deriveAccount(0);
+      const account = wallet.deriveAccount(accountIndex);
       
       setWalletState(prev => ({
         ...prev,
         wallet,
         account,
         isLoading: false,
-        success: 'Wallet imported successfully! 🎉'
+        success: `Wallet imported successfully! 🎉\nAccount ${accountIndex}: ${account?.address}`
       }));
       
       return { wallet, account };

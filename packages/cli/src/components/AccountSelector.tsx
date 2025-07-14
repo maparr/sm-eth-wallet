@@ -70,7 +70,7 @@ export function AccountSelector({ onSelect }: AccountSelectorProps) {
         <Box flexDirection="column" marginTop={1}>
           <Text color="yellow">Enter account index (0 to millions/billions):</Text>
           <TextInput
-            value={customAccount}
+            value={customAccount || ''}
             onChange={setCustomAccount}
             onSubmit={handleCustomSubmit}
             placeholder="0"
