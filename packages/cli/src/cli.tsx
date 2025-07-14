@@ -121,12 +121,22 @@ if (isDirectMode) {
     process.exit(1);
   }
   
-  console.log('🚀 Running in direct mode with validated parameters...');
-  console.log(`📍 Account: ${argv.account} (${argv.mnemonic ? 'custom' : 'default'} mnemonic)`);
-  console.log(`📍 To: ${argv.to}`);
-  console.log(`💰 Value: ${argv.value} ETH`);
-  console.log(`🌐 Network: ${argv.chainId === '1' ? 'Mainnet' : 'Sepolia'}`);
-  console.log(`📡 Broadcast: ${argv.broadcast ? 'YES' : 'NO'}`);
+  // Show initial summary in table format too
+  console.log('🚀 MINIMAL EVM WALLET CLI - DIRECT MODE');
+  console.log('');
+  console.log('┌─────────────────────┬────────────────────────────────────────────────────────────────────────────────┐');
+  console.log('│ Parameter           │ Value                                                                          │');
+  console.log('├─────────────────────┼────────────────────────────────────────────────────────────────────────────────┤');
+  console.log(`│ Account Index       │ ${argv.account.toString().padEnd(78)} │`);
+  console.log(`│ Recipient Address   │ ${argv.to!.padEnd(78)} │`);
+  console.log(`│ Amount              │ ${(argv.value! + ' ETH').padEnd(78)} │`);
+  console.log(`│ Network             │ ${(argv.chainId === '1' ? 'Ethereum Mainnet' : 'Sepolia Testnet').padEnd(78)} │`);
+  console.log(`│ Nonce               │ ${argv.nonce!.toString().padEnd(78)} │`);
+  console.log(`│ Gas Price           │ ${(argv.gasPrice + ' Wei').padEnd(78)} │`);
+  console.log(`│ Gas Limit           │ ${argv.gasLimit.toString().padEnd(78)} │`);
+  console.log(`│ Broadcast           │ ${(argv.broadcast ? 'YES' : 'NO').padEnd(78)} │`);
+  console.log('└─────────────────────┴────────────────────────────────────────────────────────────────────────────────┘');
+  console.log('');
 }
 
 // Check if raw mode is supported for interactive mode
@@ -138,16 +148,128 @@ if (!isDirectMode && !process.stdin.isTTY) {
   process.exit(1);
 }
 
-// Render the Ink app (will handle direct mode internally)
-try {
-  render(<App argv={argv} isDirectMode={Boolean(isDirectMode)} />);
-} catch (error) {
-  if (error instanceof Error && error.message.includes('Raw mode is not supported')) {
-    console.error('🚨 Interactive mode not supported in this environment');
-    console.error('💡 Try running in direct mode with all required parameters:');
-    console.error('   minimal-wallet --to 0x... --value 0.01 --nonce 0');
-    console.error('   Use --help for more information');
-    process.exit(1);
+async function main() {
+  if (isDirectMode) {
+    // Direct mode: handle transaction without React UI
+    const { SimpleWalletAPI } = await import('minimal-evm-wallet-core');
+    
+    try {
+      const walletInstance = new SimpleWalletAPI(argv.mnemonic);
+      
+      const directParams = {
+        to: argv.to!,
+        value: argv.value!,
+        nonce: argv.nonce!,
+        gasPrice: argv.gasPrice,
+        gasLimit: argv.gasLimit,
+        chainId: argv.chainId,
+        data: argv.data || '0x',
+        broadcast: argv.broadcast || false
+      };
+      
+      // Map to the correct wallet API parameters
+      const walletParams = {
+        to: directParams.to,
+        value: directParams.value,
+        nonce: directParams.nonce,
+        gasPrice: directParams.gasPrice,
+        gasLimit: directParams.gasLimit,
+        chainId: directParams.chainId,
+        data: directParams.data,
+        accountIndex: argv?.account || 0,
+        broadcast: directParams.broadcast
+      };
+      
+      // Add timeout to prevent hanging
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Transaction timeout (15s) - possible network issue')), 15000);
+      });
+      
+      const txResult = await Promise.race([
+        walletInstance.createSignedTransaction(walletParams),
+        timeoutPromise
+      ]);
+      
+      const result = txResult as any;
+      
+      // Clear output and show clean summary
+      console.clear();
+      
+      if (result.txHash) {
+        console.log('🎉 TRANSACTION BROADCASTED SUCCESSFULLY! 🎉');
+        console.log('');
+        
+        // Table format for transaction success
+        console.log('┌─────────────────────┬────────────────────────────────────────────────────────────────────────────────┐');
+        console.log('│ Field               │ Value                                                                          │');
+        console.log('├─────────────────────┼────────────────────────────────────────────────────────────────────────────────┤');
+        console.log(`│ Status              │ ✅ BROADCASTED                                                                 │`);
+        console.log(`│ TX Hash             │ ${result.txHash.padEnd(78)} │`);
+        console.log(`│ Explorer Link       │ https://sepolia.etherscan.io/tx/${result.txHash}                    │`);
+        console.log(`│ Value               │ ${(directParams.value + ' ETH').padEnd(78)} │`);
+        console.log(`│ To Address          │ ${directParams.to.padEnd(78)} │`);
+        console.log(`│ Network             │ Sepolia Testnet                                                               │`);
+        console.log(`│ Nonce               │ ${(directParams.nonce || 'N/A').padEnd(78)} │`);
+        console.log(`│ Gas Price           │ ${(directParams.gasPrice || 'N/A').padEnd(78)} │`);
+        console.log('└─────────────────────┴────────────────────────────────────────────────────────────────────────────────┘');
+      } else {
+        console.log('✅ TRANSACTION SIGNED SUCCESSFULLY!');
+        console.log('');
+        
+        // Table format for transaction signing
+        console.log('┌─────────────────────┬────────────────────────────────────────────────────────────────────────────────┐');
+        console.log('│ Field               │ Value                                                                          │');
+        console.log('├─────────────────────┼────────────────────────────────────────────────────────────────────────────────┤');
+        console.log(`│ Status              │ ✅ SIGNED (Not Broadcasted)                                                    │`);
+        console.log(`│ Signed Hash         │ ${(result.signed?.hash || 'Not available').padEnd(78)} │`);
+        console.log(`│ Value               │ ${(directParams.value + ' ETH').padEnd(78)} │`);
+        console.log(`│ To Address          │ ${directParams.to.padEnd(78)} │`);
+        console.log(`│ Network             │ Sepolia Testnet                                                               │`);
+        console.log(`│ Nonce               │ ${(directParams.nonce || 'N/A').padEnd(78)} │`);
+        console.log(`│ Gas Price           │ ${(directParams.gasPrice || 'N/A').padEnd(78)} │`);
+        console.log('└─────────────────────┴────────────────────────────────────────────────────────────────────────────────┘');
+      }
+      
+      process.exit(0);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      
+      // Clear output and show clean error summary
+      console.clear();
+      
+      console.log('❌ TRANSACTION FAILED!');
+      console.log('');
+      
+      // Table format for transaction error
+      console.log('┌─────────────────────┬────────────────────────────────────────────────────────────────────────────────┐');
+      console.log('│ Field               │ Value                                                                          │');
+      console.log('├─────────────────────┼────────────────────────────────────────────────────────────────────────────────┤');
+      console.log(`│ Status              │ ❌ FAILED                                                                      │`);
+      console.log(`│ Error               │ ${errorMessage.substring(0, 78).padEnd(78)} │`);
+      console.log(`│ Value               │ ${(argv.value! + ' ETH').padEnd(78)} │`);
+      console.log(`│ To Address          │ ${argv.to!.padEnd(78)} │`);
+      console.log(`│ Network             │ Sepolia Testnet                                                               │`);
+      console.log('└─────────────────────┴────────────────────────────────────────────────────────────────────────────────┘');
+      
+      process.exit(1);
+    }
   }
-  throw error;
+  
+  // Only render React for interactive mode
+  if (!isDirectMode) {
+    try {
+      render(<App argv={argv} isDirectMode={false} />);
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('Raw mode is not supported')) {
+        console.error('🚨 Interactive mode not supported in this environment');
+        console.error('💡 Try running in direct mode with all required parameters:');
+        console.error('   minimal-wallet --to 0x... --value 0.01 --nonce 0');
+        console.error('   Use --help for more information');
+        process.exit(1);
+      }
+      throw error;
+    }
+  }
 }
+
+main().catch(console.error);

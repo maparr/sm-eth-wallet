@@ -68,8 +68,13 @@ interface AppProps {
 }
 
 export default function App({ argv, isDirectMode }: AppProps) {
-  const [mode] = useState<AppMode>(isDirectMode ? 'direct' : 'interactive');
-  const [step, setStep] = useState<Step>(APP_STATUS.WELCOME);
+  // For direct mode, return nothing - everything is handled in CLI
+  if (isDirectMode) {
+    return null;
+  }
+
+  const [mode] = useState<AppMode>('interactive');
+  const [step, setStep] = useState<Step>(APP_STATUS.MNEMONIC);
   const [params, setParams] = useState<Partial<TransactionParams>>({});
   const [wallet, setWallet] = useState<SimpleWalletAPI>();
   const [result, setResult] = useState<any>();
@@ -80,46 +85,6 @@ export default function App({ argv, isDirectMode }: AppProps) {
   const [selectedMnemonic, setSelectedMnemonic] = useState<string>('');
   const [selectedAccount, setSelectedAccount] = useState<number>(0);
   const [signedTransaction, setSignedTransaction] = useState<any>(null);
-
-  useEffect(() => {
-    const initializeDirectMode = async () => {
-      if (mode === 'direct') {
-        // Direct CLI mode with args - enhanced with wallet support
-        try {
-        const walletInstance = new SimpleWalletAPI(argv.mnemonic);
-        setWallet(walletInstance);
-        
-        // Get address for the specified account
-        const address = walletInstance.getAddress(argv.account || 0);
-        setAccountAddress(address);
-        setSelectedMnemonic(argv.mnemonic || 'test test test test test test test test test test test junk');
-        setSelectedAccount(argv.account || 0);
-        
-        const directParams: TransactionParams = {
-          to: argv.to,
-          value: argv.value,
-          nonce: argv.nonce,
-          gasPrice: argv.gasPrice,
-          gasLimit: argv.gasLimit,
-          chainId: argv.chainId,
-          data: argv.data || '0x',
-          broadcast: argv.broadcast || false
-        };
-        setParams(directParams);
-        setStep(APP_STATUS.PROCESSING);
-          await processTransaction(directParams);
-        } catch (error) {
-          setError(`Failed to initialize wallet: ${error instanceof Error ? error.message : 'Unknown error'}`);
-          setStep(APP_STATUS.ERROR);
-        }
-      } else {
-        // Interactive mode - start with mnemonic selection
-        setStep(APP_STATUS.MNEMONIC);
-      }
-    };
-    
-    initializeDirectMode();
-  }, [mode]);
 
   const handleMnemonicSelect = (mnemonic: string) => {
     setSelectedMnemonic(mnemonic);
@@ -265,12 +230,14 @@ export default function App({ argv, isDirectMode }: AppProps) {
     setStep(APP_STATUS.RESULT);
   };
 
+
   const processTransaction = async (txParams?: TransactionParams) => {
     if (!wallet) return;
     
     setStep(APP_STATUS.PROCESSING);
+    const finalParams = txParams || { ...params, data: params.data || '0x' } as TransactionParams;
+    
     try {
-      const finalParams = txParams || { ...params, data: params.data || '0x' } as TransactionParams;
       
       // Map to the correct wallet API parameters
       const walletParams = {
@@ -290,30 +257,36 @@ export default function App({ argv, isDirectMode }: AppProps) {
         setTimeout(() => reject(new Error('Transaction timeout (15s) - possible network issue')), 15000);
       });
       
-      console.log('📡 Broadcasting transaction to network...');
       const txResult = await Promise.race([
         wallet.createSignedTransaction(walletParams),
         timeoutPromise
       ]);
       
       const result = txResult as any;
-      console.log('✅ Transaction completed:', result.txHash ? 'BROADCAST SUCCESS' : 'SIGNED ONLY');
       
       // For direct mode, immediately show result in console and exit
       if (mode === 'direct') {
+        // Clear output and show clean summary at top
+        console.clear();
+        
         if (result.txHash) {
-          console.log('\n🎉 TRANSACTION BROADCASTED SUCCESSFULLY! 🎉');
+          console.log('🎉 TRANSACTION BROADCASTED SUCCESSFULLY! 🎉');
           console.log('========================================');
           console.log('📡 TX Hash:', result.txHash);
           console.log('🔗 Sepolia Etherscan:', `https://sepolia.etherscan.io/tx/${result.txHash}`);
           console.log('💰 Value:', finalParams.value, 'ETH');
           console.log('📍 To:', finalParams.to);
           console.log('🌐 Network: Sepolia Testnet');
-          console.log('========================================\n');
+          console.log('========================================');
         } else {
-          console.log('\n✅ TRANSACTION SIGNED SUCCESSFULLY!');
+          console.log('✅ TRANSACTION SIGNED SUCCESSFULLY!');
+          console.log('========================================');
           console.log('📋 Signed Hash:', result.signed?.hash || 'Not available');
-          console.log('(Transaction was not broadcasted)\n');
+          console.log('💰 Value:', finalParams.value, 'ETH');
+          console.log('📍 To:', finalParams.to);
+          console.log('🌐 Network: Sepolia Testnet');
+          console.log('(Transaction was not broadcasted)');
+          console.log('========================================');
         }
         
         // Exit cleanly in direct mode
@@ -330,10 +303,15 @@ export default function App({ argv, isDirectMode }: AppProps) {
       
       // For direct mode, show error and exit
       if (mode === 'direct') {
-        console.log('\n❌ TRANSACTION FAILED!');
+        // Clear output and show clean error summary at top
+        console.clear();
+        console.log('❌ TRANSACTION FAILED!');
         console.log('========================================');
-        console.log('Error:', errorMessage);
-        console.log('========================================\n');
+        console.log('🚫 Error:', errorMessage);
+        console.log('💰 Value:', finalParams?.value || 'Unknown', 'ETH');
+        console.log('📍 To:', finalParams?.to || 'Unknown');
+        console.log('🌐 Network: Sepolia Testnet');
+        console.log('========================================');
         
         setTimeout(() => {
           process.exit(1);
@@ -346,63 +324,6 @@ export default function App({ argv, isDirectMode }: AppProps) {
     }
   };
 
-  // Direct mode: streamlined display
-  if (mode === 'direct') {
-    return (
-      <MainLayout>
-        <WalletBanner />
-        
-        {accountAddress ? (
-          <Box borderStyle={'single'} padding={1} marginY={1}>
-            <Text>🔑 Account {argv.account || 0}: <Text color="cyan">{accountAddress || 'Loading...'}</Text></Text>
-            <Text>🔐 Mnemonic: <Text color="yellow">{argv.mnemonic ? 'Custom' : 'Default'}</Text></Text>
-          </Box>
-        ) : null}
-        
-        {step === APP_STATUS.PROCESSING && (
-          <Box borderStyle={'single'} padding={2}>
-            <Text color="cyan">🔄 Processing transaction...</Text>
-            <Text>📍 To: {params.to || 'Not set'}</Text>
-            <Text>💰 Value: {params.value || '0'} ETH</Text>
-            <Text>🔢 Nonce: {params.nonce || 'Not set'}</Text>
-            <Text>⛽ Gas Price: {params.gasPrice ? `${(parseInt(params.gasPrice) / 1e9).toFixed(2)} Gwei` : 'Default'}</Text>
-            <Text>🚗 Gas Limit: {params.gasLimit || 'Default'}</Text>
-            <Text>🌐 Chain: {params.chainId === '1' ? 'Mainnet' : params.chainId === '11155111' ? 'Sepolia' : 'Unknown'}</Text>
-            <Text>📡 Broadcast: {params.broadcast ? 'YES' : 'NO'}</Text>
-          </Box>
-        )}
-        
-        {step === APP_STATUS.RESULT && result && (
-          <Box borderStyle={'double'} padding={2}>
-            <Text color="green">🎉 TRANSACTION SUCCESS! 🎉</Text>
-            <Text>========================================</Text>
-            {result.txHash ? (
-              <>
-                <Text>🚀 BROADCASTED TO SEPOLIA! 🌟</Text>
-                <Text>📡 TX Hash: <Text color="green">{result.txHash}</Text></Text>
-                <Text>🔗 Sepolia Etherscan: <Text color="blue">{getEtherscanUrl(params.chainId, result.txHash)}</Text></Text>
-                <Text>💰 Value: <Text color="cyan">{params.value} ETH</Text></Text>
-                <Text>📍 To: <Text color="cyan">{params.to}</Text></Text>
-                <Text>🌐 Network: <Text color="yellow">Sepolia Testnet</Text></Text>
-              </>
-            ) : (
-              <>
-                <Text>✅ Transaction Signed (Not Broadcasted)</Text>
-                <Text>📋 Signed Hash: <Text color="cyan">{result.signed?.hash || 'Not available'}</Text></Text>
-              </>
-            )}
-            <Text>========================================</Text>
-          </Box>
-        )}
-        
-        {step === APP_STATUS.ERROR && error && (
-          <Box borderStyle={'single'} padding={2}>
-            <Text color="red">❌ Error: {error}</Text>
-          </Box>
-        )}
-      </MainLayout>
-    );
-  }
 
   // Interactive mode: full UI experience
   return (
@@ -434,6 +355,8 @@ export default function App({ argv, isDirectMode }: AppProps) {
           value={currentInput}
           onChange={setCurrentInput}
           onSubmit={handleInputSubmit}
+          chainId={params.chainId}
+          accountAddress={accountAddress}
         />
       )}
       

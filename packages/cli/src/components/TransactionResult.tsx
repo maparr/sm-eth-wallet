@@ -20,7 +20,7 @@ const getEtherscanUrl = (chainId: string | undefined, txHash: string): string =>
 
 export function TransactionResult({ result, chainId }: TransactionResultProps) {
   const ethValue = (Number(result.signed.value) / 1e18).toFixed(6);
-  const gasPriceGwei = (Number(result.signed.gasPrice) / 1e9).toFixed(2);
+  const gasPriceGwei = (Number(result.signed.gasPrice) / 1e9).toString();
 
   return (
     <Box flexDirection="column" borderStyle={'single'} padding={2}>
