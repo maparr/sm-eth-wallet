@@ -1,4 +1,4 @@
-import { createDemoWallet } from '../../lib/index.js';
+import { MinimalEVMWallet } from 'minimal-evm-wallet-core';
 
 export default async function handler(req, res) {
   // Enable CORS
@@ -17,12 +17,19 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { to, value, gasPrice, gasLimit, nonce, chainId, broadcast } = req.body;
+    const { to, value, gasPrice, gasLimit, nonce, chainId, broadcast, mnemonic, accountIndex = 0 } = req.body;
     
     console.log('Signing transaction on serverless function...');
     
-    // Create wallet on the backend
-    const wallet = createDemoWallet();
+    if (!mnemonic) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Mnemonic is required for signing' 
+      });
+    }
+    
+    // Create wallet from provided mnemonic
+    const wallet = new MinimalEVMWallet(mnemonic);
     
     // Build transaction
     const transaction = wallet.buildTransaction({
@@ -35,7 +42,7 @@ export default async function handler(req, res) {
     });
     
     // Sign transaction
-    const signedTransaction = await wallet.signTransaction(transaction, 0);
+    const signedTransaction = await wallet.signTransaction(transaction, accountIndex);
     console.log('Transaction signed successfully');
     
     let txHash = null;

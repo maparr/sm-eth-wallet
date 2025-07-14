@@ -1,4 +1,4 @@
-import { createDemoWallet } from '../../lib/index.js';
+import { MinimalEVMWallet } from 'minimal-evm-wallet-core';
 
 export default function handler(req, res) {
   // Enable CORS
@@ -19,9 +19,18 @@ export default function handler(req, res) {
   try {
     console.log('Generating wallet on Vercel serverless function...');
     
-    // Create wallet on the backend where Node.js crypto works
-    const wallet = createDemoWallet();
-    const account = wallet.deriveAccount(0);
+    const { mnemonic, accountIndex = 0 } = req.body;
+    
+    if (!mnemonic) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Mnemonic is required' 
+      });
+    }
+    
+    // Create wallet from provided mnemonic
+    const wallet = new MinimalEVMWallet(mnemonic);
+    const account = wallet.deriveAccount(accountIndex);
     
     console.log('Wallet generated successfully:', account.address);
     
@@ -32,8 +41,7 @@ export default function handler(req, res) {
         address: account.address,
         derivationPath: account.derivationPath,
         index: account.index
-      },
-      mnemonic: 'test test test test test test test test test test test junk'
+      }
     });
     
     // Clean up wallet
