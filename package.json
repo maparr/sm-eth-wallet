@@ -11,7 +11,7 @@
     "setup": "npm run install:all && npm run build --workspace=@minimal-wallet/core && npm run build --workspace=@minimal-wallet/cli",
     "dev": "turbo dev",
     "build": "turbo build",
-    "build:frontend": "npm run build --workspace=@minimal-wallet/core && npm run build --workspace=@minimal-wallet/frontend",
+    "build:frontend": "npm run build --workspace=@minimal-wallet/frontend",
     "test": "turbo test",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
@@ -19,9 +19,9 @@
     "core": "npm run dev --workspace=@minimal-wallet/core",
     "cli": "npm run dev --workspace=@minimal-wallet/cli",
     "frontend": "npm run dev --workspace=@minimal-wallet/frontend",
-    "wallet": "npm run build --workspace=@minimal-wallet/core && npm run build --workspace=@minimal-wallet/cli && node packages/cli/dist/inquirer-cli.js",
-    "cli:line": "npm run build --workspace=@minimal-wallet/core && npm run build --workspace=@minimal-wallet/cli && node packages/cli/dist/inquirer-cli.js",
-    "cli:run": "npm run build --workspace=@minimal-wallet/core && npm run build --workspace=@minimal-wallet/cli && node packages/cli/dist/inquirer-cli.js",
+    "wallet": "npm run build --workspace=@minimal-wallet/cli && node packages/cli/dist/inquirer-cli.js",
+    "cli:line": "npm run build --workspace=@minimal-wallet/cli && node packages/cli/dist/inquirer-cli.js",
+    "cli:run": "npm run build --workspace=@minimal-wallet/cli && node packages/cli/dist/inquirer-cli.js",
     "cli:quick": "node packages/cli/dist/inquirer-cli.js"
   },
   "devDependencies": {

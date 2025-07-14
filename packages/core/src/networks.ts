@@ -26,46 +26,6 @@ export const NETWORKS: Record<string, NetworkConfig> = {
     chainId: 11155111,
     rpcUrl: 'https://sepolia.gateway.tenderly.co',
     explorer: 'https://sepolia.etherscan.io',
-    symbol: 'SepoliaETH',
-    decimals: 18
-  },
-  polygon: {
-    name: 'Polygon Mainnet',
-    chainId: 137,
-    rpcUrl: 'https://polygon.llamarpc.com',
-    explorer: 'https://polygonscan.com',
-    symbol: 'MATIC',
-    decimals: 18
-  },
-  mumbai: {
-    name: 'Polygon Mumbai',
-    chainId: 80001,
-    rpcUrl: 'https://rpc-mumbai.maticvigil.com',
-    explorer: 'https://mumbai.polygonscan.com',
-    symbol: 'MATIC',
-    decimals: 18
-  },
-  arbitrum: {
-    name: 'Arbitrum One',
-    chainId: 42161,
-    rpcUrl: 'https://arb1.arbitrum.io/rpc',
-    explorer: 'https://arbiscan.io',
-    symbol: 'ETH',
-    decimals: 18
-  },
-  optimism: {
-    name: 'Optimism',
-    chainId: 10,
-    rpcUrl: 'https://mainnet.optimism.io',
-    explorer: 'https://optimistic.etherscan.io',
-    symbol: 'ETH',
-    decimals: 18
-  },
-  base: {
-    name: 'Base',
-    chainId: 8453,
-    rpcUrl: 'https://mainnet.base.org',
-    explorer: 'https://basescan.org',
     symbol: 'ETH',
     decimals: 18
   }

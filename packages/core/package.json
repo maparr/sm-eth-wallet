@@ -1,6 +1,6 @@
 {
-  "name": "@minimal-wallet/core",
-  "version": "1.0.0",
+  "name": "minimal-evm-wallet-core",
+  "version": "1.0.1",
   "description": "Core wallet logic for Minimal EVM Wallet",
   "type": "module",
   "main": "dist/index.js",
