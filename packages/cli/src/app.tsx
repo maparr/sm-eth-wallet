@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Text, Box } from 'ink';
-import { SimpleWalletAPI } from '@minimal-wallet/core';
+import { SimpleWalletAPI } from 'minimal-evm-wallet-core';
 import {
   WalletBanner,
   NetworkSelector,

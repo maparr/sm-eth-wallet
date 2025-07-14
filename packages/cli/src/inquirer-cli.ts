@@ -2,7 +2,7 @@
 import inquirer from 'inquirer';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { SimpleWalletAPI, NETWORKS, getNetworkByChainId } from '@minimal-wallet/core';
+import { SimpleWalletAPI, NETWORKS, getNetworkByChainId } from 'minimal-evm-wallet-core';
 
 // Network display configurations with emojis
 const NETWORK_DISPLAY = {
