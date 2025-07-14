@@ -1,12 +1,10 @@
 import { 
   History, AlertCircle, Copy, ExternalLink
 } from 'lucide-react';
-import { Button } from '@/components/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/card';
-import { Alert, AlertDescription } from '@/components/alert';
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Alert, AlertDescription } from '@components/UI';
 import { NETWORKS } from 'minimal-evm-wallet-core';
-import { formatAddress, formatDate } from '@/utils';
-import { TransactionHistory as TransactionHistoryType } from '@/types';
+import { formatAddress, formatDate } from '@utils';
+import { TransactionHistory as TransactionHistoryType } from '@types';
 
 interface TransactionHistoryProps {
   transactions: TransactionHistoryType[];

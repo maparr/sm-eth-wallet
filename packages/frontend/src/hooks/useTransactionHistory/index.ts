@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
-import { TransactionHistory } from '../types';
-import { saveTransactionHistory, loadTransactionHistory } from '../utils/storage';
+import { TransactionHistory } from '@types';
+import { saveTransactionHistory, loadTransactionHistory } from '@utils/storage';
 
 export const useTransactionHistory = () => {
   const [transactions, setTransactions] = useState<TransactionHistory[]>([]);

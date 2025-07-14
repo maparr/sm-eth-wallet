@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { ValidationErrors, TransactionForm } from '../types';
+import { ValidationErrors, TransactionForm } from '@types';
 
 export const useValidation = (form: TransactionForm) => {
   const [errors, setErrors] = useState<ValidationErrors>({});

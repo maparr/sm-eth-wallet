@@ -3,12 +3,10 @@ import {
   Copy, AlertCircle, Loader2, Wallet, Download, Upload, 
   Trash2, Info
 } from 'lucide-react';
-import { Button } from '@/components/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/card';
-import { Alert, AlertDescription } from '@/components/alert';
+import { Button, Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, Alert, AlertDescription } from '@components/UI';
 import { NETWORKS } from 'minimal-evm-wallet-core';
-import { formatAddress } from '@/utils';
-import { WalletState } from '@/types';
+import { formatAddress } from '@utils';
+import { WalletState } from '@types';
 
 interface WalletCardProps {
   walletState: WalletState;

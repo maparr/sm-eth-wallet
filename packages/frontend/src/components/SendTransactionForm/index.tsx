@@ -2,12 +2,9 @@ import React from 'react';
 import { 
   Send, Key, Loader2, CheckCircle2, AlertCircle, ExternalLink
 } from 'lucide-react';
-import { Button } from '@/components/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/card';
-import { Input } from '@/components/input';
-import { Alert, AlertDescription, AlertTitle } from '@/components/alert';
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, Alert, AlertDescription, AlertTitle } from '@components/UI';
 import { NETWORKS, type SignedTransaction } from 'minimal-evm-wallet-core';
-import { TransactionForm, ValidationErrors, WalletState } from '@/types';
+import { TransactionForm, ValidationErrors, WalletState } from '@types';
 
 interface SendTransactionFormProps {
   walletState: WalletState;

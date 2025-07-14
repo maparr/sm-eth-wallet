@@ -1,5 +1,6 @@
-// Main container component
-export { WalletInterface } from '../containers/WalletInterface';
+/**
+ * Components barrel export
+ */
 
 // Feature components
 export { WalletCard } from './WalletCard';
@@ -12,7 +13,4 @@ export { TabNavigation } from './TabNavigation';
 export { WelcomeHeader } from './WelcomeHeader';
 
 // Re-export UI components
-export * from './alert';
-export * from './button';
-export * from './card';
-export * from './input';
+export * from './UI';

@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { MinimalEVMWallet, WalletError, formatErrorForDisplay } from 'minimal-evm-wallet-core';
-import { WalletState } from '../types';
+import { WalletState } from '@types';
+import { walletApi } from '@services';
 
 export const useWallet = () => {
   const [walletState, setWalletState] = useState<WalletState>({
@@ -35,16 +36,10 @@ export const useWallet = () => {
       const defaultMnemonic = 'test test test test test test test test test test test junk';
       
       // Call backend API to generate wallet with default mnemonic
-      const response = await fetch('/api/wallet/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          mnemonic: defaultMnemonic,
-          accountIndex: accountIndex
-        })
+      const data = await walletApi.generateWallet({
+        mnemonic: defaultMnemonic,
+        accountIndex: accountIndex
       });
-      
-      const data = await response.json();
       
       if (!data.success) {
         throw new Error(data.error || 'Failed to generate wallet');
@@ -59,7 +54,7 @@ export const useWallet = () => {
         wallet, // Keep wallet object for transaction signing
         account: data.account,
         isLoading: false,
-        success: `Demo wallet loaded successfully! 🎉\nAccount ${accountIndex}: ${data.account.address}`
+        success: `Demo wallet loaded successfully! 🎉\nAccount ${accountIndex}: ${data.account?.address}`
       }));
       
       return { account: data.account, mnemonic: defaultMnemonic };

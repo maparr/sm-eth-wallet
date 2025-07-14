@@ -1,21 +1,25 @@
 import React, { useState, useCallback } from 'react';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/alert';
 import { 
   NETWORKS,
   type SignedTransaction
 } from 'minimal-evm-wallet-core';
-import { useWallet, useTransactionHistory, useValidation } from '@/hooks';
-import { DEFAULT_GAS_LIMIT, DEFAULT_GAS_PRICE } from '@/constants';
-import { TransactionForm, TabType, TransactionHistory } from '@/types';
+import { useWallet, useTransactionHistory, useValidation } from '@hooks';
+import { DEFAULT_GAS_LIMIT, DEFAULT_GAS_PRICE } from '@utils';
+import { TransactionForm, TabType, TransactionHistory } from '@types';
 
 // Component imports
-import { WelcomeHeader } from '@/components/WelcomeHeader';
-import { WalletCard } from '@/components/WalletCard';
-import { TabNavigation } from '@/components/TabNavigation';
-import { SendTransactionForm } from '@/components/SendTransactionForm';
-import { TransactionHistory as TransactionHistoryComponent } from '@/components/TransactionHistory';
-import { WalletSettings } from '@/components/WalletSettings';
+import { 
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  WelcomeHeader,
+  WalletCard,
+  TabNavigation,
+  SendTransactionForm,
+  TransactionHistory as TransactionHistoryComponent,
+  WalletSettings
+} from '@components';
 
 export function WalletInterface() {
   // Hooks

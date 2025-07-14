@@ -1,8 +1,7 @@
 import { 
   Settings, Shield, AlertCircle
 } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/card';
-import { Alert, AlertDescription } from '@/components/alert';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, Alert, AlertDescription } from '@components/UI';
 import { NETWORKS, type NetworkConfig } from 'minimal-evm-wallet-core';
 
 interface WalletSettingsProps {

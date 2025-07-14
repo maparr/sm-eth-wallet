@@ -1,25 +1,16 @@
 /** @type {import('jest').Config} */
 module.exports = {
-  preset: 'ts-jest/presets/default-esm',
+  preset: 'ts-jest',
   testEnvironment: 'node',
-  extensionsToTreatAsEsm: ['.ts'],
   roots: ['<rootDir>/src'],
   testMatch: ['**/*.test.ts'],
   testPathIgnorePatterns: ['<rootDir>/src/__tests__/setup.ts', '<rootDir>/src/__tests__/test-constants.ts'],
   setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'],
-  globals: {
-    'ts-jest': {
-      useESM: true
-    }
-  },
   transform: {
     '^.+\\.ts$': ['ts-jest', {
-      useESM: true,
+      tsconfig: 'tsconfig.cjs.json',
     }],
   },
-  transformIgnorePatterns: [
-    'node_modules/(?!(@noble|@scure|@ethereumjs)/)',
-  ],
   collectCoverageFrom: [
     'src/**/*.ts',
     '!src/**/*.d.ts',
@@ -38,5 +29,14 @@ module.exports = {
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
     '@/(.*)': '<rootDir>/src/$1'
+  },
+  transformIgnorePatterns: [],
+  transform: {
+    '^.+\\.ts$': ['ts-jest', {
+      tsconfig: 'tsconfig.cjs.json',
+    }],
+    '^.+\\.js$': ['ts-jest', {
+      tsconfig: 'tsconfig.cjs.json',
+    }]
   }
 };

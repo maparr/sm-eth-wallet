@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { WalletInterface } from './containers/WalletInterface';
+import { WalletInterface } from '@pages';
 import { Github } from 'lucide-react';
 
 const App: FC = () => {
