@@ -7,7 +7,10 @@ import {
   AccountSelector,
   NetworkSelector,
   TransactionInput,
+  TransactionConfirmation,
+  BroadcastConfirmation,
   TransactionResult,
+  ResultActions,
   ErrorDisplay,
   MainLayout
 } from './components/index.js';
@@ -25,6 +28,8 @@ const APP_STATUS = {
   ACCOUNT: 'account',
   NETWORK: 'network', 
   INPUT: 'input',
+  CONFIRM: 'confirm',
+  BROADCAST: 'broadcast',
   PROCESSING: 'processing',
   RESULT: 'result',
   ERROR: 'error'
@@ -62,6 +67,7 @@ export default function App({ argv, isDirectMode }: AppProps) {
   const [accountAddress, setAccountAddress] = useState<string>('');
   const [selectedMnemonic, setSelectedMnemonic] = useState<string>('');
   const [selectedAccount, setSelectedAccount] = useState<number>(0);
+  const [signedTransaction, setSignedTransaction] = useState<any>(null);
 
   useEffect(() => {
     if (mode === 'direct') {
@@ -139,10 +145,77 @@ export default function App({ argv, isDirectMode }: AppProps) {
     setCurrentInput('');
     
     if (inputStep === inputs.length - 1) {
-      processTransaction();
+      setStep(APP_STATUS.CONFIRM);
     } else {
       setInputStep(prev => prev + 1);
     }
+  };
+
+  const handleConfirmTransaction = async () => {
+    if (!wallet) return;
+    
+    setStep(APP_STATUS.PROCESSING);
+    try {
+      const finalParams = { ...params, data: params.data || '0x' } as TransactionParams;
+      
+      // Add timeout to prevent hanging
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Transaction signing timeout (30s)')), 30000);
+      });
+      
+      const txResult = await Promise.race([
+        wallet.createSignedTransaction({ ...finalParams, broadcast: false }),
+        timeoutPromise
+      ]);
+      
+      setSignedTransaction(txResult);
+      setStep(APP_STATUS.BROADCAST);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      setError(`Transaction signing failed: ${errorMessage}`);
+      setStep(APP_STATUS.ERROR);
+    }
+  };
+
+  const handleBroadcast = async () => {
+    if (!wallet || !signedTransaction) return;
+    
+    setStep(APP_STATUS.PROCESSING);
+    try {
+      const finalParams = { ...params, data: params.data || '0x' } as TransactionParams;
+      
+      const txResult = await wallet.createSignedTransaction({ ...finalParams, broadcast: true });
+      
+      setResult(txResult);
+      setStep(APP_STATUS.RESULT);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      setError(`Broadcasting failed: ${errorMessage}`);
+      setStep(APP_STATUS.ERROR);
+    }
+  };
+
+  const handleReset = () => {
+    setStep(APP_STATUS.MNEMONIC);
+    setParams({});
+    setCurrentInput('');
+    setInputStep(0);
+    setResult(null);
+    setError(undefined);
+    setSignedTransaction(null);
+    setWallet(undefined);
+    setAccountAddress('');
+    setSelectedMnemonic('');
+    setSelectedAccount(0);
+  };
+
+  const handleExit = () => {
+    process.exit(0);
+  };
+
+  const handleSkipBroadcast = () => {
+    setResult(signedTransaction);
+    setStep(APP_STATUS.RESULT);
   };
 
   const processTransaction = async (txParams?: TransactionParams) => {
@@ -252,18 +325,41 @@ export default function App({ argv, isDirectMode }: AppProps) {
         />
       )}
       
+      {step === APP_STATUS.CONFIRM && (
+        <TransactionConfirmation
+          params={params as any}
+          onConfirm={handleConfirmTransaction}
+          onCancel={handleReset}
+        />
+      )}
+      
+      {step === APP_STATUS.BROADCAST && signedTransaction && (
+        <BroadcastConfirmation
+          signedTransaction={signedTransaction}
+          onBroadcast={handleBroadcast}
+          onSkip={handleSkipBroadcast}
+          onReset={handleReset}
+        />
+      )}
+      
       {step === APP_STATUS.PROCESSING && (
         <Box borderStyle={'single'} padding={2}>
-          <Text color="cyan">🔄 Creating and signing transaction...</Text>
+          <Text color="cyan">🔄 Processing transaction...</Text>
         </Box>
       )}
       
       {step === APP_STATUS.RESULT && result && (
-        <TransactionResult result={result} />
+        <>
+          <TransactionResult result={result} />
+          <ResultActions onReset={handleReset} onExit={handleExit} />
+        </>
       )}
       
       {step === APP_STATUS.ERROR && error && (
-        <ErrorDisplay error={error} />
+        <>
+          <ErrorDisplay error={error} />
+          <ResultActions onReset={handleReset} onExit={handleExit} />
+        </>
       )}
     </MainLayout>
   );
