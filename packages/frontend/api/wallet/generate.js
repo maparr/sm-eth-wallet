@@ -29,7 +29,8 @@ export default function handler(req, res) {
     }
     
     // Create wallet from provided mnemonic
-    const wallet = new MinimalEVMWallet(mnemonic);
+    const wallet = new MinimalEVMWallet();
+    wallet.createFromMnemonic(mnemonic);
     const account = wallet.deriveAccount(accountIndex);
     
     console.log('Wallet generated successfully:', account.address);

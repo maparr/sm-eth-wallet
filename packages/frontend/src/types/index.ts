@@ -17,7 +17,6 @@ export interface TransactionHistory {
 export interface WalletState {
   wallet: any | null; // MinimalEVMWallet
   account: any | null; // WalletAccount
-  balance: string;
   isLoading: boolean;
   error: string;
   success: string;

@@ -24,7 +24,7 @@ interface TransactionParams {
 
 async function displayBanner() {
   console.log('\n' + '='.repeat(60));
-  console.log('🚀 Minimal EVM Wallet CLI - GridPlus Edition 🚀');
+  console.log('🚀 Minimal EVM Wallet CLI 🚀');
   console.log('='.repeat(60) + '\n');
 }
 
@@ -247,7 +247,7 @@ async function runInteractive() {
 }
 
 async function runCommandLine(argv: any) {
-  console.log('🚀 Minimal EVM Wallet CLI - GridPlus Edition\n');
+  console.log('🚀 Minimal EVM Wallet CLI\n');
   
   const wallet = new SimpleWalletAPI(argv.mnemonic);
   const address = wallet.getAddress(argv.account || 0);
@@ -355,7 +355,7 @@ async function main() {
     if (argv['address-only']) {
       const wallet = new SimpleWalletAPI(argv.mnemonic);
       const address = wallet.getAddress(argv.account || 0);
-      console.log('🚀 Minimal EVM Wallet CLI - GridPlus Edition\n');
+      console.log('🚀 Minimal EVM Wallet CLI\n');
       console.log(`🔑 Wallet Address: ${address}`);
       if (argv.account) {
         console.log(`📍 Account Index: ${argv.account}`);

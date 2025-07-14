@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/alert';
 import { 
@@ -19,14 +19,14 @@ import { WalletSettings } from '@/components/WalletSettings';
 
 export function WalletInterface() {
   // Hooks
-  const { walletState, generateWallet, importWallet, clearWallet, updateBalance } = useWallet();
+  const { walletState, generateWallet, importWallet, clearWallet } = useWallet();
   const { transactions, addTransaction } = useTransactionHistory();
   
   // UI state
   const [mnemonic, setMnemonic] = useState<string>('');
   const [selectedNetwork, setSelectedNetwork] = useState('sepolia');
   const [activeTab, setActiveTab] = useState<TabType>('send');
-  const [isRefreshingBalance, setIsRefreshingBalance] = useState(false);
+  const [accountIndex] = useState<number>(0);
   
   // Transaction state
   const [signedTx, setSignedTx] = useState<SignedTransaction | null>(null);
@@ -42,38 +42,30 @@ export function WalletInterface() {
   });
   
   // Form validation
-  const { errors: validationErrors, isValid } = useValidation(txForm, walletState.balance);
+  const { errors: validationErrors, isValid } = useValidation(txForm);
 
   const { wallet, account, error, success } = walletState;
 
-  // Auto-refresh balance when account or network changes
-  useEffect(() => {
-    if (account) {
-      updateBalance();
-    }
-  }, [account, selectedNetwork, updateBalance]);
 
   // Wallet management handlers
   const handleGenerateWallet = useCallback(async () => {
     console.log('Generate wallet button clicked!');
     try {
-      const result = await generateWallet();
+      const result = await generateWallet(accountIndex);
       setMnemonic(result.mnemonic);
-      await updateBalance(result.account.address);
     } catch (err) {
       console.error('Generate wallet error in container:', err);
     }
-  }, [generateWallet, updateBalance]);
+  }, [generateWallet, accountIndex]);
 
   const handleImportWallet = useCallback(async (importMnemonic: string) => {
     try {
-      const result = await importWallet(importMnemonic);
+      await importWallet(importMnemonic);
       setMnemonic(importMnemonic.trim());
-      await updateBalance(result.account.address);
     } catch (err) {
       // Error handled by hook
     }
-  }, [importWallet, updateBalance]);
+  }, [importWallet]);
 
   const handleClearWallet = useCallback(() => {
     clearWallet();
@@ -103,11 +95,6 @@ export function WalletInterface() {
     URL.revokeObjectURL(url);
   }, [mnemonic, account, selectedNetwork]);
 
-  const handleRefreshBalance = useCallback(async () => {
-    setIsRefreshingBalance(true);
-    await updateBalance();
-    setIsRefreshingBalance(false);
-  }, [updateBalance]);
 
   const copyToClipboard = useCallback((text: string, label?: string) => {
     navigator.clipboard.writeText(text);
@@ -174,8 +161,7 @@ export function WalletInterface() {
         });
         setSignedTx(null);
         
-        // Refresh balance
-        updateBalance();
+        // Transaction broadcast successfully
         console.log('Transaction signed and broadcast successfully!');
       } else {
         console.log('Transaction signed successfully!');
@@ -214,12 +200,11 @@ export function WalletInterface() {
       });
       setSignedTx(null);
       
-      // Refresh balance immediately after broadcast
-      updateBalance();
+      // Transaction broadcast completed
     } catch (err) {
       console.error('Transaction broadcast failed:', err);
     }
-  }, [signedTx, wallet, txForm, selectedNetwork, addTransaction, updateBalance]);
+  }, [signedTx, wallet, txForm, selectedNetwork, addTransaction]);
 
   return (
     <div className="container mx-auto max-w-7xl p-6">
@@ -227,6 +212,7 @@ export function WalletInterface() {
       <WelcomeHeader 
         selectedNetwork={selectedNetwork}
         isWalletConnected={!!account}
+        onNetworkChange={setSelectedNetwork}
       />
 
       {/* Global Messages */}
@@ -256,9 +242,7 @@ export function WalletInterface() {
           onImportWallet={handleImportWallet}
           onClearWallet={handleClearWallet}
           onExportWallet={handleExportWallet}
-          onRefreshBalance={handleRefreshBalance}
           onCopyToClipboard={copyToClipboard}
-          isRefreshingBalance={isRefreshingBalance}
         />
 
         {/* Main Content Area */}

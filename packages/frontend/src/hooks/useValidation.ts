@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { ValidationErrors, TransactionForm } from '../types';
 
-export const useValidation = (form: TransactionForm, balance: string) => {
+export const useValidation = (form: TransactionForm) => {
   const [errors, setErrors] = useState<ValidationErrors>({});
 
   const validateForm = useCallback(() => {
@@ -56,7 +56,7 @@ export const useValidation = (form: TransactionForm, balance: string) => {
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  }, [form, balance]);
+  }, [form]);
 
   // Auto-validate when form changes
   useEffect(() => {

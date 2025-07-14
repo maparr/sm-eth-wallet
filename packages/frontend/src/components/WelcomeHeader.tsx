@@ -1,14 +1,14 @@
 import React from 'react';
-import { Shield, Wallet, Zap } from 'lucide-react';
+import { Shield, Wallet } from 'lucide-react';
 import { NETWORKS } from 'minimal-evm-wallet-core';
 
 interface WelcomeHeaderProps {
   selectedNetwork: string;
   isWalletConnected: boolean;
+  onNetworkChange: (network: string) => void;
 }
 
-export function WelcomeHeader({ selectedNetwork, isWalletConnected }: WelcomeHeaderProps) {
-  const network = NETWORKS[selectedNetwork];
+export function WelcomeHeader({ selectedNetwork, isWalletConnected, onNetworkChange }: WelcomeHeaderProps) {
 
   return (
     <div className="mb-8 text-center">
@@ -25,13 +25,22 @@ export function WelcomeHeader({ selectedNetwork, isWalletConnected }: WelcomeHea
         and enterprise security features. Built with minimal dependencies for maximum auditability.
       </p>
       
-      {/* Status Indicators */}
-      <div className="flex justify-center items-center gap-4 flex-wrap">
-        <StatusIndicator
-          icon={<div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />}
-          label={`Network: ${network.name}`}
-          className="bg-green-100 text-green-800"
-        />
+      {/* Network Selection */}
+      <div className="flex justify-center items-center gap-4 flex-wrap mb-4">
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium text-muted-foreground">Network:</label>
+          <select
+            className="px-3 py-1 border rounded-md bg-background text-sm"
+            value={selectedNetwork}
+            onChange={(e) => onNetworkChange(e.target.value)}
+          >
+            {Object.entries(NETWORKS).map(([key, net]) => (
+              <option key={key} value={key}>
+                {net.name}
+              </option>
+            ))}
+          </select>
+        </div>
         
         {isWalletConnected && (
           <StatusIndicator
@@ -40,12 +49,6 @@ export function WelcomeHeader({ selectedNetwork, isWalletConnected }: WelcomeHea
             className="bg-blue-100 text-blue-800"
           />
         )}
-        
-        <StatusIndicator
-          icon={<Zap className="w-3 h-3" />}
-          label="Production Ready"
-          className="bg-purple-100 text-purple-800"
-        />
       </div>
     </div>
   );

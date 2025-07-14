@@ -33,7 +33,7 @@ export function SendTransactionForm({
   onSignTransaction,
   onBroadcast
 }: SendTransactionFormProps) {
-  const { account, balance, isLoading } = walletState;
+  const { account, isLoading } = walletState;
   const network = NETWORKS[selectedNetwork];
 
   const updateForm = (field: keyof TransactionForm, value: string) => {
@@ -79,11 +79,6 @@ export function SendTransactionForm({
             />
             {validationErrors.amount && (
               <p className="text-sm text-red-600 mt-1">{validationErrors.amount}</p>
-            )}
-            {account && (
-              <p className="text-sm text-muted-foreground mt-1">
-                Available: {balance} {network.symbol}
-              </p>
             )}
           </div>
 

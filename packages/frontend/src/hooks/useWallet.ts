@@ -6,7 +6,6 @@ export const useWallet = () => {
   const [walletState, setWalletState] = useState<WalletState>({
     wallet: null,
     account: null,
-    balance: '0',
     isLoading: false,
     error: '',
     success: ''
@@ -28,12 +27,42 @@ export const useWallet = () => {
     setWalletState(prev => ({ ...prev, error: '', success: '' }));
   }, []);
 
-  const generateWallet = useCallback(async () => {
+  const generateWallet = useCallback(async (accountIndex: number = 0) => {
     try {
       setWalletState(prev => ({ ...prev, isLoading: true, error: '', success: '' }));
       
-      // This function should prompt user to import their mnemonic
-      throw new Error('Please use Import Wallet to provide your mnemonic phrase');
+      // Use default test mnemonic like CLI does
+      const defaultMnemonic = 'test test test test test test test test test test test junk';
+      
+      // Call backend API to generate wallet with default mnemonic
+      const response = await fetch('/api/wallet/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mnemonic: defaultMnemonic,
+          accountIndex: accountIndex
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to generate wallet');
+      }
+      
+      // Create wallet object with default mnemonic for frontend use
+      const wallet = new MinimalEVMWallet();
+      wallet.createFromMnemonic(defaultMnemonic);
+      
+      setWalletState(prev => ({
+        ...prev,
+        wallet, // Keep wallet object for transaction signing
+        account: data.account,
+        isLoading: false,
+        success: `Demo wallet loaded successfully! 🎉\nAccount ${accountIndex}: ${data.account.address}`
+      }));
+      
+      return { account: data.account, mnemonic: defaultMnemonic };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to generate wallet';
       setWalletState(prev => ({ ...prev, isLoading: false, error: errorMessage }));
@@ -81,20 +110,12 @@ export const useWallet = () => {
     setWalletState({
       wallet: null,
       account: null,
-      balance: '0',
       isLoading: false,
       error: '',
       success: 'Wallet cleared successfully 🧹'
     });
   }, [walletState.wallet]);
 
-  const updateBalance = useCallback(async (address?: string) => {
-    if (!address && !walletState.account) return;
-    
-    // Only update balance when wallet is loaded - implement real RPC call when needed
-    setWalletState(prev => ({ ...prev, balance: '0' }));
-    return '0';
-  }, [walletState.account]);
 
   // Auto-clear messages after delay
   useEffect(() => {
@@ -123,7 +144,6 @@ export const useWallet = () => {
     clearMessages,
     generateWallet,
     importWallet,
-    clearWallet,
-    updateBalance
+    clearWallet
   };
 };

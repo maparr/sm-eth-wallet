@@ -29,7 +29,8 @@ export default async function handler(req, res) {
     }
     
     // Create wallet from provided mnemonic
-    const wallet = new MinimalEVMWallet(mnemonic);
+    const wallet = new MinimalEVMWallet();
+    wallet.createFromMnemonic(mnemonic);
     
     // Build transaction
     const transaction = wallet.buildTransaction({

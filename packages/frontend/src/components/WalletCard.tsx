@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { 
-  Copy, AlertCircle, Loader2, Wallet, Download, Upload, RefreshCw, 
+  Copy, AlertCircle, Loader2, Wallet, Download, Upload, 
   Trash2, Info
 } from 'lucide-react';
 import { Button } from '@/components/button';
@@ -18,9 +18,7 @@ interface WalletCardProps {
   onImportWallet: (mnemonic: string) => Promise<void>;
   onClearWallet: () => void;
   onExportWallet: () => void;
-  onRefreshBalance: () => Promise<void>;
   onCopyToClipboard: (text: string, label?: string) => void;
-  isRefreshingBalance: boolean;
 }
 
 export function WalletCard({
@@ -31,15 +29,12 @@ export function WalletCard({
   onImportWallet,
   onClearWallet,
   onExportWallet,
-  onRefreshBalance,
-  onCopyToClipboard,
-  isRefreshingBalance
+  onCopyToClipboard
 }: WalletCardProps) {
   const [showImportMnemonic, setShowImportMnemonic] = useState(false);
   const [importMnemonic, setImportMnemonic] = useState('');
 
-  const { account, balance, isLoading } = walletState;
-  const network = NETWORKS[selectedNetwork];
+  const { account, isLoading } = walletState;
 
   const handleImport = async () => {
     await onImportWallet(importMnemonic);
@@ -55,16 +50,6 @@ export function WalletCard({
             <Wallet className="h-5 w-5" />
             Wallet
           </div>
-          {account && (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={onRefreshBalance}
-              disabled={isRefreshingBalance}
-            >
-              <RefreshCw className={`h-4 w-4 ${isRefreshingBalance ? 'animate-spin' : ''}`} />
-            </Button>
-          )}
         </CardTitle>
         <CardDescription>
           Manage your wallet and view account details
@@ -138,24 +123,6 @@ export function WalletCard({
                     title="Copy full address"
                   >
                     <Copy className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-              
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Balance</label>
-                <div className="flex items-center gap-2 mt-1">
-                  <div className="flex-1 p-2 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 rounded text-lg font-semibold border">
-                    {balance || '0'} {network.symbol}
-                  </div>
-                  <Button
-                    size="icon"
-                    variant="outline"
-                    onClick={onRefreshBalance}
-                    disabled={isRefreshingBalance}
-                    title="Refresh balance"
-                  >
-                    <RefreshCw className={`h-4 w-4 ${isRefreshingBalance ? 'animate-spin' : ''}`} />
                   </Button>
                 </div>
               </div>

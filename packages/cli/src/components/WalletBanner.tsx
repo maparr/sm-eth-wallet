@@ -12,7 +12,7 @@ export function WalletBanner() {
         ███████╗ ╚████╔╝ ██║ ╚═╝ ██║    ╚███╔███╔╝██║  ██║███████╗███████╗███████╗   ██║   
         ╚══════╝  ╚═══╝  ╚═╝     ╚═╝     ╚══╝╚══╝ ╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝   ╚═╝   
       </Text>
-      <Text color="green">🚀 Minimal EVM Wallet CLI - GridPlus Edition 🚀</Text>
+      <Text color="green">🚀 Minimal EVM Wallet CLI 🚀</Text>
     </Box>
   );
 }
