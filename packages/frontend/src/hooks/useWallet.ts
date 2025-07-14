@@ -32,10 +32,18 @@ export const useWallet = () => {
     try {
       setWalletState(prev => ({ ...prev, isLoading: true, error: '', success: '' }));
       
+      // Generate real mnemonic on frontend
+      const wallet = new MinimalEVMWallet();
+      const realMnemonic = wallet.generateMnemonic();
+      
       // Call backend API to generate wallet
       const response = await fetch('/api/wallet/generate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mnemonic: realMnemonic,
+          accountIndex: 0
+        })
       });
       
       const data = await response.json();
@@ -44,9 +52,8 @@ export const useWallet = () => {
         throw new Error(data.error || 'Failed to generate wallet');
       }
       
-      // For transactions, we need to recreate the wallet object on frontend
-      const wallet = new MinimalEVMWallet();
-      wallet.createFromMnemonic(data.mnemonic);
+      // Create wallet object with real mnemonic for frontend use
+      wallet.createFromMnemonic(realMnemonic);
       
       setWalletState(prev => ({
         ...prev,
@@ -56,7 +63,7 @@ export const useWallet = () => {
         success: `Wallet generated successfully! 🎉\nAddress: ${data.account.address}`
       }));
       
-      return { account: data.account, mnemonic: data.mnemonic };
+      return { account: data.account, mnemonic: realMnemonic };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to generate wallet';
       setWalletState(prev => ({ ...prev, isLoading: false, error: errorMessage }));

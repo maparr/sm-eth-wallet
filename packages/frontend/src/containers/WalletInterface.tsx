@@ -137,7 +137,9 @@ export function WalletInterface() {
           gasPrice: (parseFloat(txForm.gasPrice) * 1e9).toString(), // Convert to wei as string
           gasLimit: txForm.gasLimit,
           chainId: network.chainId.toString(),
-          broadcast: txForm.broadcast || false
+          broadcast: txForm.broadcast || false,
+          mnemonic: mnemonic,
+          accountIndex: 0
         })
       });
       
@@ -181,7 +183,7 @@ export function WalletInterface() {
     } catch (err) {
       console.error('Transaction signing failed:', err);
     }
-  }, [account, txForm, selectedNetwork]);
+  }, [account, txForm, selectedNetwork, mnemonic]);
 
   const handleBroadcast = useCallback(async () => {
     if (!signedTx || !wallet) return;
