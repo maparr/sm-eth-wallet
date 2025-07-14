@@ -3,13 +3,13 @@
  */
 
 export const DEFAULT_GAS_LIMIT = '21000';
-export const DEFAULT_GAS_PRICE = '20'; // Gwei
+export const DEFAULT_GAS_PRICE = '30'; // Gwei
 export const DEFAULT_NETWORK = 'sepolia';
 
 export const GAS_PRESETS = {
-  slow: { gasPrice: '10', label: 'Slow (~30s)' },
-  standard: { gasPrice: '20', label: 'Standard (~15s)' },
-  fast: { gasPrice: '40', label: 'Fast (~5s)' }
+  slow: { gasPrice: '20', label: 'Slow (~30s)' },
+  standard: { gasPrice: '30', label: 'Standard (~15s)' },
+  fast: { gasPrice: '50', label: 'Fast (~5s)' }
 };
 
 export const TRANSACTION_STATUSES = {

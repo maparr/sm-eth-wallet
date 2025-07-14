@@ -82,9 +82,10 @@ export default function App({ argv, isDirectMode }: AppProps) {
   const [signedTransaction, setSignedTransaction] = useState<any>(null);
 
   useEffect(() => {
-    if (mode === 'direct') {
-      // Direct CLI mode with args - enhanced with wallet support
-      try {
+    const initializeDirectMode = async () => {
+      if (mode === 'direct') {
+        // Direct CLI mode with args - enhanced with wallet support
+        try {
         const walletInstance = new SimpleWalletAPI(argv.mnemonic);
         setWallet(walletInstance);
         
@@ -106,15 +107,18 @@ export default function App({ argv, isDirectMode }: AppProps) {
         };
         setParams(directParams);
         setStep(APP_STATUS.PROCESSING);
-        processTransaction(directParams);
-      } catch (error) {
-        setError(`Failed to initialize wallet: ${error instanceof Error ? error.message : 'Unknown error'}`);
-        setStep(APP_STATUS.ERROR);
+          await processTransaction(directParams);
+        } catch (error) {
+          setError(`Failed to initialize wallet: ${error instanceof Error ? error.message : 'Unknown error'}`);
+          setStep(APP_STATUS.ERROR);
+        }
+      } else {
+        // Interactive mode - start with mnemonic selection
+        setStep(APP_STATUS.MNEMONIC);
       }
-    } else {
-      // Interactive mode - start with mnemonic selection
-      setStep(APP_STATUS.MNEMONIC);
-    }
+    };
+    
+    initializeDirectMode();
   }, [mode]);
 
   const handleMnemonicSelect = (mnemonic: string) => {
@@ -190,7 +194,7 @@ export default function App({ argv, isDirectMode }: AppProps) {
       
       // Add timeout to prevent hanging
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Transaction signing timeout (30s)')), 30000);
+        setTimeout(() => reject(new Error('Transaction signing timeout (15s)')), 15000);
       });
       
       const txResult = await Promise.race([
@@ -283,18 +287,60 @@ export default function App({ argv, isDirectMode }: AppProps) {
       
       // Add timeout to prevent hanging
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Transaction processing timeout (30s)')), 30000);
+        setTimeout(() => reject(new Error('Transaction timeout (15s) - possible network issue')), 15000);
       });
       
+      console.log('📡 Broadcasting transaction to network...');
       const txResult = await Promise.race([
         wallet.createSignedTransaction(walletParams),
         timeoutPromise
       ]);
       
+      const result = txResult as any;
+      console.log('✅ Transaction completed:', result.txHash ? 'BROADCAST SUCCESS' : 'SIGNED ONLY');
+      
+      // For direct mode, immediately show result in console and exit
+      if (mode === 'direct') {
+        if (result.txHash) {
+          console.log('\n🎉 TRANSACTION BROADCASTED SUCCESSFULLY! 🎉');
+          console.log('========================================');
+          console.log('📡 TX Hash:', result.txHash);
+          console.log('🔗 Sepolia Etherscan:', `https://sepolia.etherscan.io/tx/${result.txHash}`);
+          console.log('💰 Value:', finalParams.value, 'ETH');
+          console.log('📍 To:', finalParams.to);
+          console.log('🌐 Network: Sepolia Testnet');
+          console.log('========================================\n');
+        } else {
+          console.log('\n✅ TRANSACTION SIGNED SUCCESSFULLY!');
+          console.log('📋 Signed Hash:', result.signed?.hash || 'Not available');
+          console.log('(Transaction was not broadcasted)\n');
+        }
+        
+        // Exit cleanly in direct mode
+        setTimeout(() => {
+          process.exit(0);
+        }, 100);
+        return;
+      }
+      
       setResult(txResult);
       setStep(APP_STATUS.RESULT);
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : String(error);
+      
+      // For direct mode, show error and exit
+      if (mode === 'direct') {
+        console.log('\n❌ TRANSACTION FAILED!');
+        console.log('========================================');
+        console.log('Error:', errorMessage);
+        console.log('========================================\n');
+        
+        setTimeout(() => {
+          process.exit(1);
+        }, 100);
+        return;
+      }
+      
       setError(`Transaction processing failed: ${errorMessage}`);
       setStep(APP_STATUS.ERROR);
     }

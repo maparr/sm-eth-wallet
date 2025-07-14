@@ -39,7 +39,7 @@ const argv = yargs(hideBin(process.argv))
     alias: 'g',
     type: 'string',
     describe: 'Gas price in Gwei',
-    default: '2'
+    default: '30'
   })
   .option('gasLimit', {
     alias: 'l',
