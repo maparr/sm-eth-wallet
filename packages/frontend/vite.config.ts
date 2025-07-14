@@ -12,7 +12,7 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: [
-      '@minimal-wallet/core',
+      'minimal-evm-wallet-core',
       '@noble/secp256k1',
       '@noble/hashes',
       '@noble/curves',

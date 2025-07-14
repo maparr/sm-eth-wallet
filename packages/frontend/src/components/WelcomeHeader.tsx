@@ -1,6 +1,6 @@
 import React from 'react';
 import { Shield, Wallet, Zap } from 'lucide-react';
-import { NETWORKS } from '@minimal-wallet/core';
+import { NETWORKS } from 'minimal-evm-wallet-core';
 
 interface WelcomeHeaderProps {
   selectedNetwork: string;

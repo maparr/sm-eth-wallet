@@ -4,7 +4,7 @@ import {
 import { Button } from '@/components/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/card';
 import { Alert, AlertDescription } from '@/components/alert';
-import { NETWORKS } from '@minimal-wallet/core';
+import { NETWORKS } from 'minimal-evm-wallet-core';
 import { formatAddress, formatDate } from '@/utils';
 import { TransactionHistory as TransactionHistoryType } from '@/types';
 

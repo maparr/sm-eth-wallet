@@ -6,7 +6,7 @@ import { Button } from '@/components/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/card';
 import { Input } from '@/components/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/alert';
-import { NETWORKS, type SignedTransaction } from '@minimal-wallet/core';
+import { NETWORKS, type SignedTransaction } from 'minimal-evm-wallet-core';
 import { TransactionForm, ValidationErrors, WalletState } from '@/types';
 
 interface SendTransactionFormProps {

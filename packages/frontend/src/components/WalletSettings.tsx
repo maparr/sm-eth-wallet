@@ -3,7 +3,7 @@ import {
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/card';
 import { Alert, AlertDescription } from '@/components/alert';
-import { NETWORKS, type NetworkConfig } from '@minimal-wallet/core';
+import { NETWORKS, type NetworkConfig } from 'minimal-evm-wallet-core';
 
 interface WalletSettingsProps {
   selectedNetwork: string;

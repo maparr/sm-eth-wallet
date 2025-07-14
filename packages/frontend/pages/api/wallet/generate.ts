@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { createDemoWallet } from '@minimal-wallet/core';
+import { createDemoWallet } from 'minimal-evm-wallet-core';
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {

@@ -4,7 +4,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/alert';
 import { 
   NETWORKS,
   type SignedTransaction
-} from '@minimal-wallet/core';
+} from 'minimal-evm-wallet-core';
 import { useWallet, useTransactionHistory, useValidation } from '@/hooks';
 import { DEFAULT_GAS_LIMIT, DEFAULT_GAS_PRICE } from '@/constants';
 import { TransactionForm, TabType, TransactionHistory } from '@/types';

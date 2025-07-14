@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { MinimalEVMWallet, WalletError, formatErrorForDisplay } from '@minimal-wallet/core';
+import { MinimalEVMWallet, WalletError, formatErrorForDisplay } from 'minimal-evm-wallet-core';
 import { WalletState } from '../types';
 
 export const useWallet = () => {

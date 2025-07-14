@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { createDemoWallet } from '@minimal-wallet/core';
+import { createDemoWallet } from 'minimal-evm-wallet-core';
 
 const app = express();
 const PORT = 3001;
