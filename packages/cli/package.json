@@ -1,5 +1,5 @@
 {
-  "name": "@minimal-wallet/cli",
+  "name": "minimal-evm-wallet-cli",
   "version": "1.1.0",
   "description": "CLI for Minimal EVM Wallet",
   "type": "commonjs",
