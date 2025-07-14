@@ -32,38 +32,8 @@ export const useWallet = () => {
     try {
       setWalletState(prev => ({ ...prev, isLoading: true, error: '', success: '' }));
       
-      // Generate real mnemonic on frontend
-      const wallet = new MinimalEVMWallet();
-      const realMnemonic = wallet.generateMnemonic();
-      
-      // Call backend API to generate wallet
-      const response = await fetch('/api/wallet/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          mnemonic: realMnemonic,
-          accountIndex: 0
-        })
-      });
-      
-      const data = await response.json();
-      
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to generate wallet');
-      }
-      
-      // Create wallet object with real mnemonic for frontend use
-      wallet.createFromMnemonic(realMnemonic);
-      
-      setWalletState(prev => ({
-        ...prev,
-        wallet, // Keep wallet object for transaction signing
-        account: data.account,
-        isLoading: false,
-        success: `Wallet generated successfully! 🎉\nAddress: ${data.account.address}`
-      }));
-      
-      return { account: data.account, mnemonic: realMnemonic };
+      // This function should prompt user to import their mnemonic
+      throw new Error('Please use Import Wallet to provide your mnemonic phrase');
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to generate wallet';
       setWalletState(prev => ({ ...prev, isLoading: false, error: errorMessage }));
