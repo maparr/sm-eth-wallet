@@ -37,7 +37,6 @@ export interface TransactionForm {
   gasPrice: string;
   gasLimit: string;
   nonce: string;
-  broadcast?: boolean;
 }
 
 export type TabType = 'send' | 'history' | 'settings';

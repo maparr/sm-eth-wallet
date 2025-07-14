@@ -132,19 +132,6 @@ export function SendTransactionForm({
             </Alert>
           )}
 
-          {/* Broadcast Option */}
-          <div className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              id="broadcast"
-              checked={txForm.broadcast || false}
-              onChange={(e) => updateForm('broadcast', e.target.checked as any)}
-              className="rounded border-gray-300"
-            />
-            <label htmlFor="broadcast" className="text-sm font-medium">
-              Automatically broadcast transaction after signing
-            </label>
-          </div>
 
           <Button
             type="submit"

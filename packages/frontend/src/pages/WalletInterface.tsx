@@ -128,7 +128,7 @@ export function WalletInterface() {
           gasPrice: (parseFloat(txForm.gasPrice) * 1e9).toString(), // Convert to wei as string
           gasLimit: txForm.gasLimit,
           chainId: network.chainId.toString(),
-          broadcast: txForm.broadcast || false,
+          broadcast: false,
           mnemonic: mnemonic,
           accountIndex: 0
         })
@@ -141,35 +141,7 @@ export function WalletInterface() {
       }
       
       setSignedTx(data.signedTransaction);
-      
-      // If broadcast was requested and successful
-      if (data.broadcast && data.txHash) {
-        setBroadcastResult(data.txHash);
-        
-        // Add to transaction history
-        addTransaction({
-          hash: data.txHash,
-          to: txForm.to,
-          value: txForm.value,
-          status: 'pending',
-          timestamp: Date.now(),
-          gasPrice: txForm.gasPrice,
-          network: selectedNetwork
-        });
-        
-        // Reset form for next transaction
-        setTxForm({
-          ...txForm,
-          nonce: (parseInt(txForm.nonce) + 1).toString(),
-          broadcast: false
-        });
-        setSignedTx(null);
-        
-        // Transaction broadcast successfully
-        console.log('Transaction signed and broadcast successfully!');
-      } else {
-        console.log('Transaction signed successfully!');
-      }
+      console.log('Transaction signed successfully!');
     } catch (err) {
       console.error('Transaction signing failed:', err);
     }
